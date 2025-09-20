@@ -22,7 +22,7 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const [validationErrors, setValidationErrors] = useState<Partial<SignupData & { confirmPassword: string }>>({});
+    const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof (SignupData & { confirmPassword: string }), string>>>({});
 
     const roleOptions = [
         {
@@ -49,7 +49,7 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
     ];
 
     const validateForm = (): boolean => {
-        const errors: Partial<SignupData & { confirmPassword: string }> = {};
+        const errors: Partial<Record<keyof (SignupData & { confirmPassword: string }), string>> = {};
 
         if (!formData.name?.trim()) {
             errors.name = 'Name is required';
