@@ -1,5 +1,5 @@
 // src/app/layout.tsx
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 
@@ -21,8 +21,12 @@ export const metadata: Metadata = {
     title: 'SmartWill - Secure Your Digital Legacy',
     description: 'Create, manage, and execute digital wills with blockchain technology.',
   },
-  viewport: 'width=device-width, initial-scale=1',
-  themeColor: '#1f2937',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  themeColor: '#0ea5e9',
 };
 
 export default function RootLayout({
@@ -31,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body className={inter.className}>
         {children}
       </body>

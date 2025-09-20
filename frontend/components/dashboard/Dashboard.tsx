@@ -41,14 +41,14 @@ interface ActionCardProps {
 }
 
 const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color }) => (
-    <div className="bg-gray-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-800">
+    <div className="bg-gray-800 backdrop-blur-xl rounded-xl md:rounded-2xl p-3 md:p-6 border border-gray-700 hover:border-gray-600 transition-colors">
         <div className="flex items-center justify-between">
             <div className="min-w-0 flex-1">
                 <p className="text-gray-400 text-xs md:text-sm truncate">{title}</p>
                 <p className="text-lg md:text-2xl font-bold text-white mt-1 truncate">{value}</p>
             </div>
-            <div className={`p-2 md:p-3 rounded-lg md:rounded-xl bg-${color}-500/20 flex-shrink-0 ml-2`}>
-                <Icon className={`h-4 w-4 md:h-6 md:w-6 text-${color}-500`} />
+            <div className={`p-2 md:p-3 rounded-lg md:rounded-xl bg-${color === 'blue' ? 'blue' : color}-500/20 flex-shrink-0 ml-2`}>
+                <Icon className={`h-4 w-4 md:h-6 md:w-6 text-${color === 'blue' ? 'blue' : color}-500`} />
             </div>
         </div>
     </div>
@@ -57,9 +57,9 @@ const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color }) 
 const ActionCard: React.FC<ActionCardProps> = ({ title, description, icon: Icon, action, color }) => (
     <button
         onClick={action}
-        className={`bg-gradient-to-br from-${color}-500/10 to-${color}-600/5 border border-${color}-500/20 rounded-xl md:rounded-2xl p-4 md:p-6 text-left hover:from-${color}-500/15 hover:to-${color}-600/10 transition-all group`}
+        className={`bg-gray-800 border border-gray-700 hover:border-${color === 'blue' ? 'blue' : color}-500/50 rounded-xl md:rounded-2xl p-4 md:p-6 text-left hover:bg-gray-750 transition-all group`}
     >
-        <Icon className={`h-6 w-6 md:h-8 md:w-8 text-${color}-500 mb-3 md:mb-4`} />
+        <Icon className={`h-6 w-6 md:h-8 md:w-8 text-${color === 'blue' ? 'blue' : color}-500 mb-3 md:mb-4`} />
         <h4 className="text-base md:text-lg font-semibold text-white mb-1 md:mb-2">{title}</h4>
         <p className="text-gray-400 text-xs md:text-sm mb-3 md:mb-4 leading-relaxed">{description}</p>
         <div className="flex items-center text-blue-400 text-xs md:text-sm group-hover:translate-x-1 transition-transform">
@@ -73,7 +73,7 @@ const Dashboard: React.FC<DashboardProps> = ({ willData }) => {
         { title: 'Total Assets', value: willData.assets.totalValue, icon: Wallet, color: 'blue' },
         { title: 'Beneficiaries', value: willData.beneficiaries.length.toString(), icon: Users, color: 'green' },
         { title: 'Active Conditions', value: willData.conditions.length.toString(), icon: Shield, color: 'purple' },
-        { title: 'Will Status', value: 'Active', icon: CheckCircle, color: 'emerald' }
+        { title: 'Will Status', value: 'Active', icon: CheckCircle, color: 'green' }
     ];
 
     const actionCards = [
@@ -119,16 +119,16 @@ const Dashboard: React.FC<DashboardProps> = ({ willData }) => {
 
             {/* Widgets Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-                <div className="bg-gray-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-800">
+                <div className="bg-gray-800 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-700">
                     <h3 className="text-lg md:text-xl font-semibold text-white mb-3 md:mb-4 flex items-center">
                         <Users className="h-4 w-4 md:h-5 md:w-5 mr-2 text-blue-500" />
                         <span className="truncate">Recent Beneficiaries</span>
                     </h3>
                     <div className="space-y-3 md:space-y-4">
                         {willData.beneficiaries.map((beneficiary) => (
-                            <div key={beneficiary.id} className="flex items-center justify-between py-2 md:py-3 px-3 md:px-4 rounded-lg md:rounded-xl bg-black/20">
+                            <div key={beneficiary.id} className="flex items-center justify-between py-2 md:py-3 px-3 md:px-4 rounded-lg md:rounded-xl bg-gray-700">
                                 <div className="flex items-center space-x-2 md:space-x-3 min-w-0 flex-1">
-                                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
                                         <span className="text-white font-medium text-sm md:text-base">{beneficiary.name.charAt(0)}</span>
                                     </div>
                                     <div className="min-w-0 flex-1">
@@ -137,7 +137,7 @@ const Dashboard: React.FC<DashboardProps> = ({ willData }) => {
                                     </div>
                                 </div>
                                 <div className="flex items-center space-x-1 md:space-x-2 flex-shrink-0 ml-2">
-                                    <span className="text-blue-400 font-medium text-sm md:text-base">{beneficiary.percentage}%</span>
+                                    <span className="text-blue-500 font-medium text-sm md:text-base">{beneficiary.percentage}%</span>
                                     {beneficiary.verified ? (
                                         <CheckCircle className="h-3 w-3 md:h-4 md:w-4 text-green-500" />
                                     ) : (
@@ -156,7 +156,7 @@ const Dashboard: React.FC<DashboardProps> = ({ willData }) => {
 
             {/* Asset Distribution and Market Data */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-                <div className="bg-gray-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-800">
+                <div className="bg-gray-800 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-700">
                     <h3 className="text-lg md:text-xl font-semibold text-white mb-3 md:mb-4 flex items-center">
                         <BarChart3 className="h-4 w-4 md:h-5 md:w-5 mr-2 text-green-500" />
                         <span className="truncate">Asset Distribution</span>
@@ -185,16 +185,16 @@ const Dashboard: React.FC<DashboardProps> = ({ willData }) => {
 
                 <StacksMarketWidget />
 
-                <div className="bg-gray-900/50 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-800 md:col-span-2 lg:col-span-1">
+                <div className="bg-gray-800 backdrop-blur-xl rounded-xl md:rounded-2xl p-4 md:p-6 border border-gray-700 md:col-span-2 lg:col-span-1">
                     <h3 className="text-lg md:text-lg font-semibold text-white mb-3 md:mb-4">Quick Actions</h3>
                     <div className="space-y-2 md:space-y-3">
-                        <button className="w-full bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-lg md:rounded-xl py-2 md:py-3 text-blue-400 text-sm font-medium hover:from-blue-600/30 hover:to-purple-600/30 transition-all">
+                        <button className="w-full bg-blue-600/20 border border-blue-500/30 rounded-lg md:rounded-xl py-2 md:py-3 text-blue-400 text-sm font-medium hover:bg-blue-600/30 hover:border-blue-400/50 transition-all">
                             Add New Beneficiary
                         </button>
-                        <button className="w-full bg-gradient-to-r from-green-600/20 to-emerald-600/20 border border-green-500/30 rounded-lg md:rounded-xl py-2 md:py-3 text-green-400 text-sm font-medium hover:from-green-600/30 hover:to-emerald-600/30 transition-all">
+                        <button className="w-full bg-green-600/20 border border-green-500/30 rounded-lg md:rounded-xl py-2 md:py-3 text-green-400 text-sm font-medium hover:bg-green-600/30 hover:border-green-400/50 transition-all">
                             Update Asset Values
                         </button>
-                        <button className="w-full bg-gradient-to-r from-purple-600/20 to-pink-600/20 border border-purple-500/30 rounded-lg md:rounded-xl py-2 md:py-3 text-purple-400 text-sm font-medium hover:from-purple-600/30 hover:to-pink-600/30 transition-all">
+                        <button className="w-full bg-purple-600/20 border border-purple-500/30 rounded-lg md:rounded-xl py-2 md:py-3 text-purple-400 text-sm font-medium hover:bg-purple-600/30 hover:border-purple-400/50 transition-all">
                             Review Conditions
                         </button>
                     </div>

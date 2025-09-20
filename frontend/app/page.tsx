@@ -61,6 +61,7 @@ const SmartWillApp: React.FC = () => {
       isConnected={isConnected}
       setIsConnected={setIsConnected}
       showHeartbeat={showHeartbeat}
+      onLogoClick={() => setShowApp(false)}
     >
       {renderContent()}
     </MainLayout>

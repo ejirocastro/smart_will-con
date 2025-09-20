@@ -12,6 +12,7 @@ interface NavigationProps {
     isConnected: boolean;
     setIsConnected: (connected: boolean) => void;
     showHeartbeat: boolean;
+    onLogoClick: () => void;
 }
 
 const Navigation: React.FC<NavigationProps> = ({
@@ -19,7 +20,8 @@ const Navigation: React.FC<NavigationProps> = ({
     setActiveTab,
     isConnected,
     setIsConnected,
-    showHeartbeat
+    showHeartbeat,
+    onLogoClick
 }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
 
@@ -37,23 +39,29 @@ const Navigation: React.FC<NavigationProps> = ({
     };
 
     return (
-        <nav className="bg-black/80 backdrop-blur-xl border-b border-gray-800 sticky top-0 z-50">
+        <nav className="bg-black/10 backdrop-blur-xl border-b border-gray-500/20 sticky top-0 z-50 transition-all duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-16">
                     <div className="flex items-center space-x-8">
-                        <div className="text-white font-bold text-xl flex items-center space-x-2">
-                            <Shield className="h-8 w-8 text-blue-500" />
-                            <span>SmartWill</span>
-                        </div>
+                        <button 
+                            onClick={() => {
+                                console.log('Logo clicked - going to landing page');
+                                onLogoClick();
+                            }}
+                            className="text-white font-bold text-xl flex items-center space-x-2 drop-shadow-lg hover:opacity-80 transition-opacity duration-200"
+                        >
+                            <Shield className="h-8 w-8 text-blue-600 drop-shadow-md" />
+                            <span className="bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent">SmartWill</span>
+                        </button>
 
                         <div className="hidden md:flex space-x-6">
                             {NAVIGATION_TABS.map((tab) => (
                                 <button
                                     key={tab.id}
                                     onClick={() => handleTabChange(tab.id as TabType)}
-                                    className={`capitalize px-3 py-2 text-sm font-medium rounded-lg transition-all ${activeTab === tab.id
-                                        ? 'text-blue-400 bg-blue-500/10'
-                                        : 'text-gray-300 hover:text-white hover:bg-white/5'
+                                    className={`capitalize px-4 py-2.5 text-sm font-medium rounded-xl transition-all duration-200 ${activeTab === tab.id
+                                        ? 'text-blue-600 bg-blue-600/20 border border-blue-600/40 shadow-lg backdrop-blur-sm'
+                                        : 'text-gray-300 hover:text-white hover:bg-gray-800/20 border border-transparent hover:border-gray-500/30'
                                         }`}
                                 >
                                     {tab.label}
@@ -64,23 +72,23 @@ const Navigation: React.FC<NavigationProps> = ({
 
                     <div className="flex items-center space-x-4">
                         {/* Heartbeat Monitor */}
-                        <div className="hidden md:flex items-center space-x-2 bg-green-500/10 border border-green-500/30 rounded-lg px-3 py-2">
-                            <Heart className={`h-4 w-4 text-green-500 ${showHeartbeat ? 'animate-pulse' : ''}`} />
-                            <span className="text-green-400 text-sm font-medium">Active</span>
+                        <div className="hidden md:flex items-center space-x-2 bg-green-600/20 border border-green-600/40 rounded-xl px-3 py-2 backdrop-blur-sm shadow-md">
+                            <Heart className={`h-4 w-4 text-green-600 ${showHeartbeat ? 'animate-pulse' : ''}`} />
+                            <span className="text-green-600 text-sm font-medium">Active</span>
                         </div>
 
                         <button
                             onClick={handleWalletConnect}
-                            className={`px-4 py-2 rounded-xl font-medium transition-all ${isConnected
-                                ? 'bg-green-500/20 text-green-400 border border-green-500/30'
-                                : 'bg-blue-600 text-white hover:bg-blue-700'
+                            className={`px-6 py-2.5 rounded-xl font-semibold transition-all duration-200 shadow-lg backdrop-blur-sm ${isConnected
+                                ? 'bg-green-600/20 text-green-600 border border-green-600/40 hover:bg-green-600/30'
+                                : 'bg-gradient-to-r from-blue-600 to-blue-700 text-white hover:from-blue-500 hover:to-blue-600 border border-blue-600/60 hover:shadow-blue-600/30 hover:shadow-xl'
                                 }`}
                         >
                             {isConnected ? 'Connected' : 'Connect Wallet'}
                         </button>
 
                         <button
-                            className="md:hidden text-white"
+                            className="md:hidden text-white p-2 rounded-lg hover:bg-gray-800/20 transition-all duration-200"
                             onClick={toggleMobileMenu}
                             aria-label="Toggle mobile menu"
                         >
@@ -91,12 +99,14 @@ const Navigation: React.FC<NavigationProps> = ({
 
                 {/* Mobile Menu */}
                 {isMobileMenuOpen && (
-                    <div className="md:hidden bg-black/90 backdrop-blur-xl border-t border-gray-800 py-4">
+                    <div className="md:hidden bg-black/95 backdrop-blur-xl border-t border-gray-500/20 py-4 shadow-xl">
                         {NAVIGATION_TABS.map((tab) => (
                             <button
                                 key={tab.id}
                                 onClick={() => handleTabChange(tab.id as TabType)}
-                                className={`block w-full text-left px-4 py-3 capitalize ${activeTab === tab.id ? 'text-blue-400 bg-blue-500/10' : 'text-gray-300'
+                                className={`block w-full text-left px-6 py-4 capitalize font-medium transition-all duration-200 ${activeTab === tab.id
+                                    ? 'text-blue-600 bg-blue-600/20 border-r-4 border-blue-600'
+                                    : 'text-gray-300 hover:text-white hover:bg-gray-800/20'
                                     }`}
                             >
                                 {tab.label}

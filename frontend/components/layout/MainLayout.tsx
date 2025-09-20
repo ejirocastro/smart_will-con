@@ -2,8 +2,8 @@
 'use client';
 
 import React from 'react';
-import Navigation from '../common/Navigation';
-import Footer from '../common/Footer';
+import Sidebar from '../common/Sidebar';
+import TopNavbar from '../common/TopNavbar';
 import { TabType } from '@/types';
 
 interface MainLayoutProps {
@@ -13,6 +13,7 @@ interface MainLayoutProps {
     isConnected: boolean;
     setIsConnected: (connected: boolean) => void;
     showHeartbeat: boolean;
+    onLogoClick: () => void;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -21,23 +22,32 @@ const MainLayout: React.FC<MainLayoutProps> = ({
     setActiveTab,
     isConnected,
     setIsConnected,
-    showHeartbeat
+    showHeartbeat,
+    onLogoClick
 }) => {
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
-            <Navigation
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
+        <div className="min-h-screen bg-gray-900 flex flex-col">
+            {/* Top Navbar - Full Width */}
+            <TopNavbar
                 isConnected={isConnected}
                 setIsConnected={setIsConnected}
                 showHeartbeat={showHeartbeat}
+                onLogoClick={onLogoClick}
             />
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
-            </main>
+            {/* Content Area with Sidebar */}
+            <div className="flex flex-1">
+                {/* Sidebar */}
+                <Sidebar
+                    activeTab={activeTab}
+                    setActiveTab={setActiveTab}
+                />
 
-            <Footer />
+                {/* Main Content Area */}
+                <main className="flex-1 ml-64 p-8 pt-8">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 };

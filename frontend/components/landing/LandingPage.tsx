@@ -64,7 +64,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
     useEffect(() => {
         setIsVisible(true);
-        
+
         const handleScroll = () => {
             setScrollY(window.scrollY);
             setNavbarBlur(window.scrollY > 50);
@@ -111,7 +111,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
         // Animation loop
         const animateNodes = () => {
-            setBlockchainNodes(prevNodes => 
+            setBlockchainNodes(prevNodes =>
                 prevNodes.map(node => ({
                     ...node,
                     x: (node.x + Math.cos(node.direction) * node.moveSpeed + 100) % 100,
@@ -121,7 +121,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
         };
 
         const animateParticles = () => {
-            setParticles(prevParticles => 
+            setParticles(prevParticles =>
                 prevParticles.map(particle => ({
                     ...particle,
                     x: (particle.x + Math.cos(particle.direction) * particle.speed + 100) % 100,
@@ -158,13 +158,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             const newMessage = { id: chatMessages.length + 1, text: inputMessage, isBot: false };
             setChatMessages([...chatMessages, newMessage]);
             setInputMessage('');
-            
+
             // Simulate AI response
             setTimeout(() => {
-                const response = { 
-                    id: chatMessages.length + 2, 
-                    text: "I'd be happy to help you understand how SmartWill works! You can create a secure digital will in minutes, protect your crypto assets, and ensure your family has access when needed. Would you like to know more about any specific feature?", 
-                    isBot: true 
+                const response = {
+                    id: chatMessages.length + 2,
+                    text: "I'd be happy to help you understand how SmartWill works! You can create a secure digital will in minutes, protect your crypto assets, and ensure your family has access when needed. Would you like to know more about any specific feature?",
+                    isBot: true
                 };
                 setChatMessages(prev => [...prev, response]);
             }, 1000);
@@ -195,7 +195,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     ];
 
     return (
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-white">
             {/* Custom CSS for animations */}
             <style jsx>{`
                 @keyframes float {
@@ -268,44 +268,49 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     }
                 }
             `}</style>
-            
+
             {/* Sticky Navigation */}
-            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-                navbarBlur ? 'bg-black/80 backdrop-blur-xl border-b border-gray-800' : 'bg-transparent'
-            }`}>
+            <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBlur ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200' : 'bg-transparent'
+                }`}>
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
-                        <div className="flex items-center space-x-3">
-                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                        <button 
+                            onClick={() => {
+                                console.log('Landing page logo clicked - starting app');
+                                onGetStarted?.();
+                            }}
+                            className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200"
+                        >
+                            <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
                                 <Shield className="h-4 w-4 text-white" />
                             </div>
-                            <span className="text-white font-semibold text-xl">SmartWill</span>
-                        </div>
+                            <span className="text-gray-900 font-semibold text-xl">SmartWill</span>
+                        </button>
 
                         {/* Navigation Links */}
                         <div className="hidden md:flex items-center space-x-8">
-                            <button 
+                            <button
                                 onClick={() => scrollToSection('features')}
-                                className="text-gray-300 hover:text-white transition-colors duration-300 font-medium"
+                                className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
                             >
                                 Features
                             </button>
-                            <button 
+                            <button
                                 onClick={() => scrollToSection('about')}
-                                className="text-gray-300 hover:text-white transition-colors duration-300 font-medium"
+                                className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
                             >
                                 About us
                             </button>
-                            <button 
+                            <button
                                 onClick={() => scrollToSection('contact')}
-                                className="text-gray-300 hover:text-white transition-colors duration-300 font-medium"
+                                className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
                             >
                                 Contact
                             </button>
-                            <button 
+                            <button
                                 onClick={() => scrollToSection('support')}
-                                className="text-gray-300 hover:text-white transition-colors duration-300 font-medium"
+                                className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
                             >
                                 Support
                             </button>
@@ -319,16 +324,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                 {/* Animated Blockchain Background */}
                 <div className="absolute inset-0 overflow-hidden">
                     {/* Gradient Background with Animation */}
-                    <div 
-                        className="absolute inset-0 bg-gradient-to-br from-blue-900/10 via-purple-900/5 to-black"
+                    <div
+                        className="absolute inset-0 bg-gray-100"
                         style={{ transform: `translateY(${scrollY * 0.5}px)` }}
                     />
-                    
+
                     {/* Floating Particles */}
                     {particles.map((particle) => (
                         <div
                             key={particle.id}
-                            className="absolute w-1 h-1 bg-blue-400/60 rounded-full floating-particle"
+                            className="absolute w-1 h-1 bg-blue-500/60 rounded-full floating-particle"
                             style={{
                                 left: `${particle.x}%`,
                                 top: `${particle.y}%`,
@@ -337,13 +342,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             }}
                         />
                     ))}
-                    
+
                     {/* Blockchain Nodes */}
                     {blockchainNodes.map((node) => (
                         <div key={node.id} className="absolute" style={{ left: `${node.x}%`, top: `${node.y}%` }}>
                             {/* Node Circle */}
                             <div
-                                className="relative bg-gradient-to-br from-blue-500/30 to-purple-500/30 rounded-full border border-blue-400/40 backdrop-blur-sm blockchain-node"
+                                className="relative bg-gradient-to-br from-blue-500/30 to-white/30 rounded-full border border-blue-500/40 backdrop-blur-sm blockchain-node"
                                 style={{
                                     width: `${node.size}px`,
                                     height: `${node.size}px`,
@@ -351,25 +356,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 }}
                             >
                                 {/* Inner Glow */}
-                                <div className="absolute inset-1 bg-gradient-to-br from-blue-400/40 to-purple-400/40 rounded-full animate-ping opacity-75"></div>
+                                <div className="absolute inset-1 bg-gradient-to-br from-blue-500/40 to-white/40 rounded-full animate-ping opacity-75"></div>
                                 {/* Core */}
                                 <div className="absolute inset-2 bg-white/80 rounded-full"></div>
                             </div>
-                            
+
                             {/* Data Streams */}
                             {node.id % 3 === 0 && (
                                 <div className="absolute top-1/2 left-full w-16 h-px">
-                                    <div className="w-full h-full bg-gradient-to-r from-blue-400/60 to-transparent data-beam" style={{ animationDelay: `${node.pulseDelay}s` }}></div>
-                                    <div className="absolute top-0 left-0 w-2 h-px bg-blue-400 data-stream" style={{ animationDelay: `${node.pulseDelay + 0.5}s` }}></div>
-                                    <div className="absolute top-0 right-0 w-1 h-1 bg-blue-300 rounded-full opacity-60 animate-pulse" style={{ animationDelay: `${node.pulseDelay + 1}s` }}></div>
+                                    <div className="w-full h-full bg-gradient-to-r from-blue-500/60 to-transparent data-beam" style={{ animationDelay: `${node.pulseDelay}s` }}></div>
+                                    <div className="absolute top-0 left-0 w-2 h-px bg-blue-500 data-stream" style={{ animationDelay: `${node.pulseDelay + 0.5}s` }}></div>
+                                    <div className="absolute top-0 right-0 w-1 h-1 bg-blue-600 rounded-full opacity-60 animate-pulse" style={{ animationDelay: `${node.pulseDelay + 1}s` }}></div>
                                 </div>
                             )}
                         </div>
                     ))}
-                    
+
                     {/* Connecting Lines */}
                     <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-20">
-                        {blockchainNodes.map((node, index) => 
+                        {blockchainNodes.map((node, index) =>
                             blockchainNodes.slice(index + 1).map((targetNode, targetIndex) => {
                                 const distance = Math.sqrt(
                                     Math.pow(node.x - targetNode.x, 2) + Math.pow(node.y - targetNode.y, 2)
@@ -394,13 +399,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         )}
                         <defs>
                             <linearGradient id="blockchainGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.8" />
-                                <stop offset="50%" stopColor="#8B5CF6" stopOpacity="0.6" />
-                                <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.4" />
+                                <stop offset="0%" stopColor="#0EA5E9" stopOpacity="0.8" />
+                                <stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.6" />
+                                <stop offset="100%" stopColor="#0EA5E9" stopOpacity="0.4" />
                             </linearGradient>
                         </defs>
                     </svg>
-                    
+
                     {/* Floating Data Blocks */}
                     {[...Array(typeof window !== 'undefined' && window.innerWidth < 768 ? 3 : 6)].map((_, i) => (
                         <div
@@ -413,47 +418,47 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 animationDelay: `${i * 0.8}s`
                             }}
                         >
-                            <div className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-lg p-3 border border-blue-400/30 backdrop-blur-sm hover:opacity-40 transition-opacity">
-                                <div className="w-8 h-2 bg-gradient-to-r from-blue-400 to-purple-400 rounded mb-1 opacity-60 data-beam" style={{ animationDelay: `${i * 0.3}s` }}></div>
+                            <div className="bg-gradient-to-br from-blue-500/20 to-white/20 rounded-lg p-3 border border-blue-500/30 backdrop-blur-sm hover:opacity-40 transition-opacity">
+                                <div className="w-8 h-2 bg-gradient-to-r from-blue-500 to-white rounded mb-1 opacity-60 data-beam" style={{ animationDelay: `${i * 0.3}s` }}></div>
                                 <div className="w-6 h-1 bg-gray-400 rounded opacity-40"></div>
                                 <div className="w-4 h-1 bg-gray-400 rounded mt-1 opacity-30"></div>
-                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-400/60 rounded-full animate-ping"></div>
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-blue-500/60 rounded-full animate-ping"></div>
                             </div>
                         </div>
                     ))}
-                    
+
                     {/* Pulse Rings */}
                     <div className="absolute top-1/4 left-1/4 w-32 h-32 opacity-10">
-                        <div className="absolute inset-0 border border-blue-400 rounded-full animate-ping"></div>
-                        <div className="absolute inset-4 border border-purple-400 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-                        <div className="absolute inset-8 border border-blue-400 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
+                        <div className="absolute inset-0 border border-blue-500 rounded-full animate-ping"></div>
+                        <div className="absolute inset-4 border border-white rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                        <div className="absolute inset-8 border border-blue-500 rounded-full animate-ping" style={{ animationDelay: '2s' }}></div>
                     </div>
-                    
+
                     <div className="absolute bottom-1/4 right-1/4 w-24 h-24 opacity-10">
-                        <div className="absolute inset-0 border border-purple-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-                        <div className="absolute inset-3 border border-blue-400 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
+                        <div className="absolute inset-0 border border-white rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                        <div className="absolute inset-3 border border-blue-500 rounded-full animate-ping" style={{ animationDelay: '1.5s' }}></div>
                     </div>
                 </div>
 
                 <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 pt-16">
                     <div className={`transition-all duration-1500 ease-out ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-                        
+
                         {/* Hero Headlines - Premium Style */}
                         <div className="text-center space-y-8 mb-16">
-                            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full px-6 py-3 backdrop-blur-xl">
-                                <Award className="h-4 w-4 text-blue-400" />
-                                <span className="text-blue-300 text-sm font-medium">Trusted by 10,000+ families worldwide</span>
+                            <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-white/10 border border-blue-500/20 rounded-full px-6 py-3 backdrop-blur-xl">
+                                <Award className="h-4 w-4 text-blue-500" />
+                                <span className="text-blue-600 text-sm font-medium">Trusted by 10,000+ families worldwide</span>
                             </div>
-                            
-                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-light text-white leading-[0.85] tracking-tighter">
+
+                            <h1 className="text-6xl md:text-8xl lg:text-9xl font-light text-gray-900 leading-[0.85] tracking-tighter">
                                 Your Legacy.
                                 <br />
-                                <span className="bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent font-thin">
+                                <span className="text-blue-600 font-thin">
                                     Secured Forever.
                                 </span>
                             </h1>
-                            
-                            <p className="text-2xl md:text-3xl text-gray-300 font-light leading-relaxed max-w-4xl mx-auto mt-8">
+
+                            <p className="text-2xl md:text-3xl text-gray-700 font-light leading-relaxed max-w-4xl mx-auto mt-8">
                                 The world's most advanced digital estate planning platform.
                                 <br className="hidden md:block" />
                                 Blockchain-secured. AI-powered. Family-protected.
@@ -462,15 +467,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
                         {/* Interactive CTAs */}
                         <div className="flex flex-col md:flex-row items-center justify-center space-y-4 md:space-y-0 md:space-x-6 mb-16">
-                            <button 
+                            <button
                                 onClick={onGetStarted}
-                                className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-5 rounded-full font-medium text-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 transform hover:scale-105 flex items-center space-x-3"
+                                className="group bg-blue-600 text-white px-12 py-5 rounded-full font-medium text-lg hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 transform hover:scale-105 flex items-center space-x-3"
                             >
                                 <span>Start Your Legacy</span>
                                 <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
                             </button>
-                            
-                            <button className="group flex items-center space-x-3 text-white hover:text-blue-300 transition-colors duration-300">
+
+                            <button className="group flex items-center space-x-3 text-gray-900 hover:text-blue-500 transition-colors duration-300">
                                 <div className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-xl border border-white/20 flex items-center justify-center group-hover:bg-white/20 transition-all duration-300">
                                     <Play className="h-5 w-5 ml-0.5" />
                                 </div>
@@ -479,22 +484,22 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         </div>
 
                         {/* Premium Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-black/20 backdrop-blur-xl rounded-3xl p-8 border border-gray-800">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 bg-white/20 backdrop-blur-xl rounded-3xl p-8 border border-gray-200">
                             <div className="text-center">
-                                <div className="text-3xl md:text-4xl font-light text-white mb-2">$2.5B+</div>
-                                <div className="text-gray-400 text-sm">Assets Protected</div>
+                                <div className="text-3xl md:text-4xl font-light text-gray-900 mb-2">$2.5B+</div>
+                                <div className="text-gray-600 text-sm">Assets Protected</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-3xl md:text-4xl font-light text-white mb-2">99.99%</div>
-                                <div className="text-gray-400 text-sm">Uptime SLA</div>
+                                <div className="text-3xl md:text-4xl font-light text-gray-900 mb-2">99.99%</div>
+                                <div className="text-gray-600 text-sm">Uptime SLA</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-3xl md:text-4xl font-light text-white mb-2">10K+</div>
-                                <div className="text-gray-400 text-sm">Families</div>
+                                <div className="text-3xl md:text-4xl font-light text-gray-900 mb-2">10K+</div>
+                                <div className="text-gray-600 text-sm">Families</div>
                             </div>
                             <div className="text-center">
-                                <div className="text-3xl md:text-4xl font-light text-white mb-2">256-bit</div>
-                                <div className="text-gray-400 text-sm">Encryption</div>
+                                <div className="text-3xl md:text-4xl font-light text-gray-900 mb-2">256-bit</div>
+                                <div className="text-gray-600 text-sm">Encryption</div>
                             </div>
                         </div>
                     </div>
@@ -509,23 +514,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Features Section */}
-            <section id="features" className="py-32 bg-gray-950">
+            <section id="features" className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     {/* Section Header */}
                     <div className="text-center mb-20">
-                        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full px-6 py-3 backdrop-blur-xl mb-8">
-                            <Zap className="h-4 w-4 text-blue-400" />
-                            <span className="text-blue-300 text-sm font-medium">Next-Generation Technology</span>
+                        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-white/10 border border-blue-500/20 rounded-full px-6 py-3 backdrop-blur-xl mb-8">
+                            <Zap className="h-4 w-4 text-blue-500" />
+                            <span className="text-blue-600 text-sm font-medium">Next-Generation Technology</span>
                         </div>
-                        <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
+                        <h2 className="text-5xl md:text-6xl font-light text-gray-900 mb-6">
                             Built for the
                             <br />
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                            <span className="text-blue-600">
                                 Digital Future
                             </span>
                         </h2>
-                        <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                            Experience the perfect fusion of blockchain security, artificial intelligence, 
+                        <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Experience the perfect fusion of blockchain security, artificial intelligence,
                             and intuitive design in one powerful platform.
                         </p>
                     </div>
@@ -533,52 +538,52 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     {/* Interactive Product Showcase */}
                     <div className="space-y-32">
                         {/* Blockchain Security */}
-                        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-blue-900/20 to-purple-900/20 p-1">
-                            <div className="bg-gray-900 rounded-3xl p-8 md:p-16">
+                        <div className="relative rounded-3xl overflow-hidden bg-gray-100 p-1">
+                            <div className="bg-white rounded-3xl p-8 md:p-16 border border-gray-200">
                                 <div className="grid md:grid-cols-2 gap-12 items-center">
-                                    <div 
+                                    <div
                                         className="space-y-8"
                                         style={{ transform: `translateY(${scrollY * 0.1}px)` }}
                                     >
                                         <div className="flex items-center space-x-3 mb-4">
                                             <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                                                <Shield className="h-6 w-6 text-blue-400" />
+                                                <Shield className="h-6 w-6 text-blue-500" />
                                             </div>
-                                            <span className="text-blue-300 font-medium">Blockchain Security</span>
+                                            <span className="text-blue-600 font-medium">Blockchain Security</span>
                                         </div>
-                                        <h3 className="text-4xl md:text-5xl font-light text-white leading-tight">
+                                        <h3 className="text-4xl md:text-5xl font-light text-gray-900 leading-tight">
                                             Unbreakable
                                             <br />
-                                            <span className="text-blue-400">Protection</span>
+                                            <span className="text-blue-600">Protection</span>
                                         </h3>
-                                        <p className="text-xl text-gray-300 leading-relaxed">
-                                            Military-grade encryption meets blockchain technology. 
+                                        <p className="text-xl text-gray-600 leading-relaxed">
+                                            Military-grade encryption meets blockchain technology.
                                             Your digital legacy is protected by the most secure infrastructure on Earth.
                                         </p>
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="flex items-center space-x-3">
-                                                <Check className="h-5 w-5 text-green-400" />
-                                                <span className="text-gray-300">256-bit Encryption</span>
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-600">256-bit Encryption</span>
                                             </div>
                                             <div className="flex items-center space-x-3">
-                                                <Check className="h-5 w-5 text-green-400" />
-                                                <span className="text-gray-300">Immutable Records</span>
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-600">Immutable Records</span>
                                             </div>
                                             <div className="flex items-center space-x-3">
-                                                <Check className="h-5 w-5 text-green-400" />
-                                                <span className="text-gray-300">Multi-Signature</span>
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-600">Multi-Signature</span>
                                             </div>
                                             <div className="flex items-center space-x-3">
-                                                <Check className="h-5 w-5 text-green-400" />
-                                                <span className="text-gray-300">Zero-Knowledge</span>
+                                                <Check className="h-5 w-5 text-green-600" />
+                                                <span className="text-gray-600">Zero-Knowledge</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div className="relative">
-                                        <div className="bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl p-8 backdrop-blur-xl border border-gray-700 hover:border-blue-500/50 transition-colors duration-500">
+                                        <div className="bg-blue-100 rounded-2xl p-8 backdrop-blur-xl border border-blue-200 hover:border-blue-300 transition-colors duration-500">
                                             <div className="relative">
-                                                <Shield className="h-32 w-32 text-blue-400 mx-auto animate-pulse" />
-                                                <div className="absolute inset-0 bg-blue-400/10 rounded-full animate-ping"></div>
+                                                <Shield className="h-32 w-32 text-blue-600 mx-auto animate-pulse" />
+                                                <div className="absolute inset-0 bg-blue-500/10 rounded-full animate-ping"></div>
                                             </div>
                                         </div>
                                     </div>
@@ -587,19 +592,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         </div>
 
                         {/* AI Intelligence */}
-                        <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-purple-900/20 to-pink-900/20 p-1">
-                            <div className="bg-gray-900 rounded-3xl p-8 md:p-16">
+                        <div className="relative rounded-3xl overflow-hidden bg-purple-100 p-1">
+                            <div className="bg-white rounded-3xl p-8 md:p-16 border border-purple-200">
                                 <div className="grid md:grid-cols-2 gap-12 items-center">
                                     <div className="relative order-2 md:order-1">
-                                        <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl p-8 backdrop-blur-xl border border-gray-700 hover:border-purple-500/50 transition-colors duration-500">
+                                        <div className="bg-purple-100 rounded-2xl p-8 backdrop-blur-xl border border-purple-200 hover:border-purple-300 transition-colors duration-500">
                                             <div className="relative">
-                                                <Brain className="h-32 w-32 text-purple-400 mx-auto" />
-                                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-400 rounded-full animate-pulse"></div>
-                                                <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-pink-400 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                                                <Brain className="h-32 w-32 text-purple-600 mx-auto" />
+                                                <div className="absolute -top-2 -right-2 w-6 h-6 bg-purple-500 rounded-full animate-pulse"></div>
+                                                <div className="absolute -bottom-2 -left-2 w-4 h-4 bg-pink-500 rounded-full animate-pulse" style={{ animationDelay: '0.5s' }}></div>
                                             </div>
                                         </div>
                                     </div>
-                                    <div 
+                                    <div
                                         className="space-y-8 order-1 md:order-2"
                                         style={{ transform: `translateY(${scrollY * 0.1}px)` }}
                                     >
@@ -609,23 +614,23 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                             </div>
                                             <span className="text-purple-300 font-medium">AI Intelligence</span>
                                         </div>
-                                        <h3 className="text-4xl md:text-5xl font-light text-white leading-tight">
+                                        <h3 className="text-4xl md:text-5xl font-light text-gray-900 leading-tight">
                                             Smart
                                             <br />
-                                            <span className="text-purple-400">Recommendations</span>
+                                            <span className="text-purple-600">Recommendations</span>
                                         </h3>
-                                        <p className="text-xl text-gray-300 leading-relaxed">
-                                            Our AI advisor analyzes your assets, relationships, and goals to provide 
+                                        <p className="text-xl text-gray-600 leading-relaxed">
+                                            Our AI advisor analyzes your assets, relationships, and goals to provide
                                             personalized recommendations that evolve with your life.
                                         </p>
                                         <div className="space-y-4">
-                                            <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                                                <TrendingUp className="h-5 w-5 text-purple-400" />
-                                                <span className="text-gray-300">Portfolio optimization suggestions</span>
+                                            <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-100 border border-purple-200">
+                                                <TrendingUp className="h-5 w-5 text-purple-600" />
+                                                <span className="text-gray-600">Portfolio optimization suggestions</span>
                                             </div>
-                                            <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
-                                                <Clock className="h-5 w-5 text-purple-400" />
-                                                <span className="text-gray-300">Life event reminders</span>
+                                            <div className="flex items-center space-x-3 p-3 rounded-lg bg-purple-100 border border-purple-200">
+                                                <Clock className="h-5 w-5 text-purple-600" />
+                                                <span className="text-gray-600">Life event reminders</span>
                                             </div>
                                         </div>
                                     </div>
@@ -636,37 +641,37 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
                     {/* Enhanced Feature Grid */}
                     <div className="grid md:grid-cols-3 gap-8 mt-32">
-                        <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-green-500/5 to-blue-500/5 border border-gray-800 hover:border-green-500/30 transition-all duration-500">
-                            <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <Lock className="h-8 w-8 text-green-400" />
+                        <div className="group relative p-8 rounded-2xl bg-green-50 border border-gray-200 hover:border-green-300 transition-all duration-500">
+                            <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <Lock className="h-8 w-8 text-green-600" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-4">Bank-Grade Security</h3>
-                            <p className="text-gray-400 leading-relaxed mb-6">Every byte of data is protected with the same security standards used by major financial institutions.</p>
-                            <div className="flex items-center text-green-400 text-sm font-medium">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Bank-Grade Security</h3>
+                            <p className="text-gray-600 leading-relaxed mb-6">Every byte of data is protected with the same security standards used by major financial institutions.</p>
+                            <div className="flex items-center text-green-600 text-sm font-medium">
                                 <span>Learn more</span>
                                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </div>
                         </div>
-                        
-                        <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-blue-500/5 to-purple-500/5 border border-gray-800 hover:border-blue-500/30 transition-all duration-500">
-                            <div className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <Globe className="h-8 w-8 text-blue-400" />
+
+                        <div className="group relative p-8 rounded-2xl bg-blue-50 border border-gray-200 hover:border-blue-300 transition-all duration-500">
+                            <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <Globe className="h-8 w-8 text-blue-600" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-4">Global Access</h3>
-                            <p className="text-gray-400 leading-relaxed mb-6">Access your digital legacy from anywhere in the world with enterprise-grade infrastructure and 99.99% uptime.</p>
-                            <div className="flex items-center text-blue-400 text-sm font-medium">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Global Access</h3>
+                            <p className="text-gray-600 leading-relaxed mb-6">Access your digital legacy from anywhere in the world with enterprise-grade infrastructure and 99.99% uptime.</p>
+                            <div className="flex items-center text-blue-600 text-sm font-medium">
                                 <span>Learn more</span>
                                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </div>
                         </div>
-                        
-                        <div className="group relative p-8 rounded-2xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-gray-800 hover:border-purple-500/30 transition-all duration-500">
-                            <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                                <Heart className="h-8 w-8 text-purple-400" />
+
+                        <div className="group relative p-8 rounded-2xl bg-purple-50 border border-gray-200 hover:border-purple-300 transition-all duration-500">
+                            <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
+                                <Heart className="h-8 w-8 text-purple-600" />
                             </div>
-                            <h3 className="text-xl font-semibold text-white mb-4">Family First</h3>
-                            <p className="text-gray-400 leading-relaxed mb-6">Designed with families in mind. Easy onboarding, guardian systems, and emotional support resources.</p>
-                            <div className="flex items-center text-purple-400 text-sm font-medium">
+                            <h3 className="text-xl font-semibold text-gray-900 mb-4">Family First</h3>
+                            <p className="text-gray-600 leading-relaxed mb-6">Designed with families in mind. Easy onboarding, guardian systems, and emotional support resources.</p>
+                            <div className="flex items-center text-purple-600 text-sm font-medium">
                                 <span>Learn more</span>
                                 <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                             </div>
@@ -676,17 +681,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Testimonials Section */}
-            <section className="py-32 bg-black">
+            <section className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="text-center mb-20">
-                        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20 rounded-full px-6 py-3 backdrop-blur-xl mb-8">
-                            <Star className="h-4 w-4 text-green-400" />
-                            <span className="text-green-300 text-sm font-medium">Trusted by Families Worldwide</span>
+                        <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-green-600/10 to-blue-500/10 border border-green-600/20 rounded-full px-6 py-3 backdrop-blur-xl mb-8">
+                            <Star className="h-4 w-4 text-green-600" />
+                            <span className="text-green-600 text-sm font-medium">Trusted by Families Worldwide</span>
                         </div>
-                        <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
+                        <h2 className="text-5xl md:text-6xl font-light text-gray-900 mb-6">
                             Real Stories,
                             <br />
-                            <span className="bg-gradient-to-r from-green-400 to-blue-500 bg-clip-text text-transparent">
+                            <span className="text-green-600">
                                 Real Peace of Mind
                             </span>
                         </h2>
@@ -710,7 +715,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 ))}
                             </div>
                             <p className="text-gray-300 leading-relaxed">
-                                "Finally, a platform that understands the complexity of digital assets. 
+                                "Finally, a platform that understands the complexity of digital assets.
                                 SmartWill made securing my crypto portfolio for my family incredibly simple."
                             </p>
                             <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -718,9 +723,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             </div>
                         </div>
 
-                        <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-green-900/20 to-blue-900/20 border border-gray-800 hover:border-green-500/30 transition-all duration-500 hover:transform hover:scale-105">
+                        <div className="group relative p-8 rounded-3xl bg-gradient-to-br from-green-900/20 to-blue-900/20 border border-gray-800 hover:border-green-600/30 transition-all duration-500 hover:transform hover:scale-105">
                             <div className="flex items-center space-x-4 mb-6">
-                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-500 to-blue-600 flex items-center justify-center">
+                                <div className="w-12 h-12 rounded-full bg-gradient-to-r from-green-600 to-blue-600 flex items-center justify-center">
                                     <span className="text-white font-medium">JC</span>
                                 </div>
                                 <div>
@@ -734,11 +739,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 ))}
                             </div>
                             <p className="text-gray-300 leading-relaxed">
-                                "The AI recommendations helped me optimize my estate plan in ways I never considered. 
+                                "The AI recommendations helped me optimize my estate plan in ways I never considered.
                                 The security features give me complete confidence."
                             </p>
                             <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                                <TrendingUp className="h-8 w-8 text-green-400" />
+                                <TrendingUp className="h-8 w-8 text-green-600" />
                             </div>
                         </div>
 
@@ -758,7 +763,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 ))}
                             </div>
                             <p className="text-gray-300 leading-relaxed">
-                                "Setting up guardians for my kids was so easy. The peace of mind knowing 
+                                "Setting up guardians for my kids was so easy. The peace of mind knowing
                                 they'll be taken care of is priceless."
                             </p>
                             <div className="absolute top-4 right-4 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -782,7 +787,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* About Section */}
-            <section id="about" className="py-32 bg-gray-950">
+            <section id="about" className="py-32 bg-white">
                 <div className="max-w-6xl mx-auto px-6 lg:px-8">
                     <div className="grid md:grid-cols-2 gap-16 items-center mb-20">
                         <div>
@@ -793,12 +798,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             <h2 className="text-5xl md:text-6xl font-light text-white leading-tight mb-8">
                                 Built for
                                 <br />
-                                <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                                <span className="text-blue-600">
                                     Tomorrow's Families
                                 </span>
                             </h2>
                             <p className="text-xl text-gray-300 leading-relaxed mb-8">
-                                SmartWill combines cutting-edge blockchain technology with intuitive design 
+                                SmartWill combines cutting-edge blockchain technology with intuitive design
                                 to create the world's most secure and user-friendly digital estate planning platform.
                             </p>
                             <div className="space-y-4">
@@ -809,8 +814,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                     <span className="text-gray-300">Enterprise-grade security infrastructure</span>
                                 </div>
                                 <div className="flex items-center space-x-3">
-                                    <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                                        <Check className="h-4 w-4 text-green-400" />
+                                    <div className="w-8 h-8 rounded-full bg-green-600/20 flex items-center justify-center">
+                                        <Check className="h-4 w-4 text-green-600" />
                                     </div>
                                     <span className="text-gray-300">AI-powered optimization and insights</span>
                                 </div>
@@ -849,7 +854,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Pricing Section */}
-            <section className="py-32 bg-black">
+            <section className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="text-center mb-20">
                         <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full px-6 py-3 backdrop-blur-xl mb-8">
@@ -859,7 +864,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
                             Choose Your
                             <br />
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                            <span className="text-blue-600">
                                 Legacy Plan
                             </span>
                         </h2>
@@ -879,19 +884,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             </div>
                             <div className="space-y-4 mb-8">
                                 <div className="flex items-center space-x-3">
-                                    <Check className="h-5 w-5 text-green-400" />
+                                    <Check className="h-5 w-5 text-green-600" />
                                     <span className="text-gray-300">Basic will creation</span>
                                 </div>
                                 <div className="flex items-center space-x-3">
-                                    <Check className="h-5 w-5 text-green-400" />
+                                    <Check className="h-5 w-5 text-green-600" />
                                     <span className="text-gray-300">Up to 3 beneficiaries</span>
                                 </div>
                                 <div className="flex items-center space-x-3">
-                                    <Check className="h-5 w-5 text-green-400" />
+                                    <Check className="h-5 w-5 text-green-600" />
                                     <span className="text-gray-300">Basic asset tracking</span>
                                 </div>
                                 <div className="flex items-center space-x-3">
-                                    <Check className="h-5 w-5 text-green-400" />
+                                    <Check className="h-5 w-5 text-green-600" />
                                     <span className="text-gray-300">Email support</span>
                                 </div>
                             </div>
@@ -993,7 +998,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 <span>Enterprise Security</span>
                             </div>
                             <div className="flex items-center space-x-2">
-                                <Globe className="h-4 w-4 text-green-400" />
+                                <Globe className="h-4 w-4 text-green-600" />
                                 <span>Global Access</span>
                             </div>
                             <div className="flex items-center space-x-2">
@@ -1006,7 +1011,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Contact Section */}
-            <section id="contact" className="py-32 bg-gray-950">
+            <section id="contact" className="py-32 bg-white">
                 <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
                     <h2 className="text-5xl md:text-6xl font-light text-white mb-8">
                         Get in Touch
@@ -1014,9 +1019,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                     <p className="text-xl text-gray-300 mb-12 leading-relaxed">
                         Have questions? Our team is here to help you secure your digital legacy.
                     </p>
-                    
+
                     <div className="grid md:grid-cols-2 gap-8 max-w-2xl mx-auto">
-                        <a 
+                        <a
                             href="mailto:hello@smartwill.com"
                             className="group bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 border border-gray-800 hover:border-blue-500/50 transition-all duration-300"
                         >
@@ -1024,8 +1029,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             <h3 className="text-xl font-medium text-white mb-2">Email Us</h3>
                             <p className="text-gray-400">hello@smartwill.com</p>
                         </a>
-                        
-                        <a 
+
+                        <a
                             href="tel:+15551234567"
                             className="group bg-gray-900/50 backdrop-blur-xl rounded-2xl p-8 border border-gray-800 hover:border-purple-500/50 transition-all duration-300"
                         >
@@ -1038,13 +1043,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Support/FAQ Section */}
-            <section id="support" className="py-32 bg-black">
+            <section id="support" className="py-32 bg-white">
                 <div className="max-w-4xl mx-auto px-6 lg:px-8">
                     <div className="text-center mb-16">
                         <h2 className="text-5xl md:text-6xl font-light text-white mb-8">
                             Frequently Asked
                             <br />
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                            <span className="text-blue-600">
                                 Questions
                             </span>
                         </h2>
@@ -1052,7 +1057,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
 
                     <div className="space-y-4">
                         {faqData.map((faq, index) => (
-                            <div 
+                            <div
                                 key={index}
                                 className="bg-gray-900/50 backdrop-blur-xl rounded-2xl border border-gray-800 overflow-hidden"
                             >
@@ -1079,7 +1084,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Interactive Demo Section */}
-            <section className="py-32 bg-black">
+            <section className="py-32 bg-white">
                 <div className="max-w-7xl mx-auto px-6 lg:px-8">
                     <div className="text-center mb-20">
                         <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-full px-6 py-3 backdrop-blur-xl mb-8">
@@ -1089,12 +1094,12 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         <h2 className="text-5xl md:text-6xl font-light text-white mb-6">
                             Experience the
                             <br />
-                            <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                            <span className="text-blue-600">
                                 Future of Legacy
                             </span>
                         </h2>
                         <p className="text-xl text-gray-300 max-w-3xl mx-auto">
-                            Take a guided tour through SmartWill's powerful features and see how easy 
+                            Take a guided tour through SmartWill's powerful features and see how easy
                             it is to secure your digital legacy.
                         </p>
                     </div>
@@ -1116,7 +1121,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                         <span className="text-blue-400">You Buy</span>
                                     </h3>
                                     <p className="text-xl text-gray-300 leading-relaxed">
-                                        Explore every feature, test the AI advisor, and see how your 
+                                        Explore every feature, test the AI advisor, and see how your
                                         digital estate would look - all without signing up.
                                     </p>
                                     <div className="space-y-4">
@@ -1132,9 +1137,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                             </div>
                                             <span className="text-gray-300">Add digital assets and beneficiaries</span>
                                         </div>
-                                        <div className="flex items-center space-x-3 p-4 rounded-xl bg-green-500/10 border border-green-500/20">
-                                            <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                                                <span className="text-green-400 font-medium text-sm">3</span>
+                                        <div className="flex items-center space-x-3 p-4 rounded-xl bg-green-600/10 border border-green-600/20">
+                                            <div className="w-8 h-8 rounded-full bg-green-600/20 flex items-center justify-center">
+                                                <span className="text-green-600 font-medium text-sm">3</span>
                                             </div>
                                             <span className="text-gray-300">See AI recommendations in real-time</span>
                                         </div>
@@ -1162,7 +1167,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                                         <div className="w-4 h-4 bg-blue-400 rounded mb-1"></div>
                                                         <div className="w-full h-1 bg-gray-600 rounded"></div>
                                                     </div>
-                                                    <div className="bg-green-500/20 rounded p-2">
+                                                    <div className="bg-green-600/20 rounded p-2">
                                                         <div className="w-4 h-4 bg-green-400 rounded mb-1"></div>
                                                         <div className="w-full h-1 bg-gray-600 rounded"></div>
                                                     </div>
@@ -1194,15 +1199,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             <h4 className="text-lg font-semibold text-white mb-2">AI Assistant</h4>
                             <p className="text-gray-400 text-sm">Chat with our AI to get personalized estate planning advice</p>
                         </div>
-                        
-                        <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-green-500/5 to-blue-500/5 border border-gray-800">
-                            <div className="w-16 h-16 bg-gradient-to-br from-green-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <Database className="h-8 w-8 text-green-400" />
+
+                        <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-green-600/5 to-blue-500/5 border border-gray-800">
+                            <div className="w-16 h-16 bg-gradient-to-br from-green-600/20 to-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <Database className="h-8 w-8 text-green-600" />
                             </div>
                             <h4 className="text-lg font-semibold text-white mb-2">Asset Tracking</h4>
                             <p className="text-gray-400 text-sm">See how your crypto and digital assets are organized</p>
                         </div>
-                        
+
                         <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-purple-500/5 to-pink-500/5 border border-gray-800">
                             <div className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <Heart className="h-8 w-8 text-purple-400" />
@@ -1210,7 +1215,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             <h4 className="text-lg font-semibold text-white mb-2">Family Setup</h4>
                             <p className="text-gray-400 text-sm">Experience adding beneficiaries and guardians</p>
                         </div>
-                        
+
                         <div className="text-center p-6 rounded-2xl bg-gradient-to-br from-orange-500/5 to-red-500/5 border border-gray-800">
                             <div className="w-16 h-16 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <Shield className="h-8 w-8 text-orange-400" />
@@ -1223,19 +1228,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
             </section>
 
             {/* Final CTA */}
-            <section className="py-32 bg-gradient-to-br from-blue-900/10 to-purple-900/10">
+            <section className="py-32 bg-white">
                 <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
-                    <h2 className="text-6xl md:text-7xl font-light text-white mb-8 leading-tight">
+                    <h2 className="text-6xl md:text-7xl font-light text-gray-900 mb-8 leading-tight">
                         Start Today.
                         <br />
-                        <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+                        <span className="text-blue-600">
                             Secure Tomorrow.
                         </span>
                     </h2>
-                    
-                    <button 
+
+                    <button
                         onClick={onGetStarted}
-                        className="group bg-gradient-to-r from-blue-600 to-purple-600 text-white px-12 py-5 rounded-full font-medium text-xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 transform hover:scale-105"
+                        className="group bg-blue-600 text-white px-12 py-5 rounded-full font-medium text-xl hover:shadow-2xl hover:shadow-blue-500/25 transition-all duration-500 transform hover:scale-105"
                     >
                         Create Your SmartWill
                         <ArrowRight className="ml-3 h-5 w-5 group-hover:translate-x-1 transition-transform duration-300 inline" />
@@ -1255,10 +1260,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                                 </div>
                                 <div>
                                     <h3 className="text-white font-medium">SmartWill AI</h3>
-                                    <p className="text-xs text-green-400">Online</p>
+                                    <p className="text-xs text-green-600">Online</p>
                                 </div>
                             </div>
-                            <button 
+                            <button
                                 onClick={() => setChatOpen(false)}
                                 className="text-gray-400 hover:text-white transition-colors"
                             >
@@ -1269,15 +1274,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                         {/* Chat Messages */}
                         <div className="flex-1 p-4 overflow-y-auto space-y-4">
                             {chatMessages.map((message) => (
-                                <div 
+                                <div
                                     key={message.id}
                                     className={`flex ${message.isBot ? 'justify-start' : 'justify-end'}`}
                                 >
-                                    <div className={`max-w-[80%] p-3 rounded-2xl ${
-                                        message.isBot 
-                                            ? 'bg-gray-800 text-white' 
+                                    <div className={`max-w-[80%] p-3 rounded-2xl ${message.isBot
+                                            ? 'bg-gray-800 text-white'
                                             : 'bg-gradient-to-r from-blue-600 to-purple-600 text-white'
-                                    }`}>
+                                        }`}>
                                         <p className="text-sm">{message.text}</p>
                                     </div>
                                 </div>
