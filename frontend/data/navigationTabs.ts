@@ -10,6 +10,14 @@ export const NAVIGATION_TABS: NavigationTab[] = [
     label: 'Create Will',
   },
   {
+    id: 'drafts-versions',
+    label: 'Drafts & Versions',
+  },
+  {
+    id: 'review-preview',
+    label: 'Review & Preview',
+  },
+  {
     id: 'assets',
     label: 'Assets',
   },

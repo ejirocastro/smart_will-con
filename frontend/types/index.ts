@@ -70,4 +70,4 @@ export interface NavigationTab {
   href?: string;
 }
 
-export type TabType = 'dashboard' | 'create' | 'assets' | 'legacy' | 'ai-advisor' | 'security';
+export type TabType = 'dashboard' | 'create' | 'drafts-versions' | 'review-preview' | 'assets' | 'legacy' | 'ai-advisor' | 'security';

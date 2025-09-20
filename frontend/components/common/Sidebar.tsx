@@ -52,6 +52,8 @@ const getTabIcon = (tabId: string) => {
     const icons: Record<string, React.ComponentType<{ className?: string }>> = {
         'dashboard': require('lucide-react').LayoutDashboard,
         'create': require('lucide-react').FileText,
+        'drafts-versions': require('lucide-react').GitBranch,
+        'review-preview': require('lucide-react').Eye,
         'assets': require('lucide-react').Wallet,
         'legacy': require('lucide-react').Archive,
         'ai-advisor': require('lucide-react').Brain,

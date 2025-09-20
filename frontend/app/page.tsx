@@ -5,6 +5,8 @@ import LandingPage from '@/components/landing/LandingPage';
 import MainLayout from '@/components/layout/MainLayout';
 import Dashboard from '@/components/dashboard/Dashboard';
 import CreateWill from '@/components/forms/CreateWill';
+import DraftsVersions from '@/components/drafts/DraftsVersions';
+import ReviewPreview from '@/components/review/ReviewPreview';
 import LegacyVault from '@/components/legacy/LegacyVault';
 import AIAdvisor from '@/components/ai/AIAdvisor';
 import { useWillData } from '@/hooks/useWillData';
@@ -29,6 +31,10 @@ const SmartWillApp: React.FC = () => {
         return <Dashboard willData={willData} />;
       case 'create':
         return <CreateWill />;
+      case 'drafts-versions':
+        return <DraftsVersions />;
+      case 'review-preview':
+        return <ReviewPreview willData={willData} />;
       case 'legacy':
         return <LegacyVault />;
       case 'ai-advisor':
