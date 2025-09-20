@@ -70,4 +70,31 @@ export interface NavigationTab {
   href?: string;
 }
 
-export type TabType = 'dashboard' | 'create' | 'drafts-versions' | 'review-preview' | 'assets' | 'legacy' | 'ai-advisor' | 'security';
+export type TabType = 'dashboard' | 'create' | 'drafts-versions' | 'review-preview' | 'assets' | 'legacy' | 'ai-advisor' | 'security' | 'deploy' | 'heir-view' | 'verifier-dashboard';
+
+export type UserRole = 'owner' | 'heir' | 'verifier';
+
+export interface User {
+  id: string;
+  email: string;
+  role: UserRole;
+  name?: string;
+}
+
+export interface AuthState {
+  user: User | null;
+  token: string | null;
+  isAuthenticated: boolean;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface SignupData {
+  email: string;
+  password: string;
+  role: UserRole;
+  name?: string;
+}

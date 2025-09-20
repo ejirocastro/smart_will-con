@@ -577,39 +577,39 @@ ${currentData.beneficiaries.map(beneficiary =>
     return (
         <div className="space-y-6">
             {/* Tab Navigation */}
-            <div className="flex space-x-1 bg-gray-800 p-1 rounded-lg">
+            <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1 bg-gray-800 p-1 rounded-lg">
                 <button
                     onClick={() => setActiveView('summary')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 sm:px-4 rounded-md transition-colors ${
                         activeView === 'summary' 
                             ? 'bg-blue-600 text-white' 
                             : 'text-gray-400 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                     <Eye className="h-4 w-4" />
-                    <span>Summary</span>
+                    <span className="text-sm sm:text-base">Summary</span>
                 </button>
                 <button
                     onClick={() => setActiveView('json')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 sm:px-4 rounded-md transition-colors ${
                         activeView === 'json' 
                             ? 'bg-blue-600 text-white' 
                             : 'text-gray-400 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                     <Database className="h-4 w-4" />
-                    <span>JSON Data</span>
+                    <span className="text-sm sm:text-base">JSON Data</span>
                 </button>
                 <button
                     onClick={() => setActiveView('contract')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 sm:px-4 rounded-md transition-colors ${
                         activeView === 'contract' 
                             ? 'bg-blue-600 text-white' 
                             : 'text-gray-400 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                     <Code className="h-4 w-4" />
-                    <span>Smart Contract</span>
+                    <span className="text-sm sm:text-base">Contract</span>
                 </button>
             </div>
 

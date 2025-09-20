@@ -341,25 +341,25 @@ const DraftsVersions: React.FC = () => {
             <div className="flex space-x-1 bg-gray-800 p-1 rounded-lg">
                 <button
                     onClick={() => setActiveTab('drafts')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 sm:px-4 rounded-md transition-colors ${
                         activeTab === 'drafts' 
                             ? 'bg-blue-600 text-white' 
                             : 'text-gray-400 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                     <FileText className="h-4 w-4" />
-                    <span>Drafts</span>
+                    <span className="text-sm sm:text-base">Drafts</span>
                 </button>
                 <button
                     onClick={() => setActiveTab('versions')}
-                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-4 rounded-md transition-colors ${
+                    className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 sm:px-4 rounded-md transition-colors ${
                         activeTab === 'versions' 
                             ? 'bg-blue-600 text-white' 
                             : 'text-gray-400 hover:text-white hover:bg-gray-700'
                     }`}
                 >
                     <GitBranch className="h-4 w-4" />
-                    <span>Versions</span>
+                    <span className="text-sm sm:text-base">Versions</span>
                 </button>
             </div>
 
