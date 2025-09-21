@@ -26,14 +26,17 @@ import {
     Clock,
     Heart,
     Eye,
-    MousePointer
+    MousePointer,
+    Menu
 } from 'lucide-react';
 
 interface LandingPageProps {
     onGetStarted?: () => void;
+    onSignInClick?: () => void;
+    onSignUpClick?: () => void;
 }
 
-const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
+const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, onSignUpClick }) => {
     const [isVisible, setIsVisible] = useState(false);
     const [scrollY, setScrollY] = useState(0);
     const [navbarBlur, setNavbarBlur] = useState(false);
@@ -43,6 +46,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
     ]);
     const [inputMessage, setInputMessage] = useState('');
     const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [blockchainNodes, setBlockchainNodes] = useState<Array<{
         id: number;
         x: number;
@@ -314,8 +318,90 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted }) => {
                             >
                                 Support
                             </button>
+                            
+                            {/* Auth Buttons */}
+                            <div className="flex items-center space-x-4 ml-8">
+                                <button
+                                    onClick={onSignInClick}
+                                    className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
+                                >
+                                    Sign In
+                                </button>
+                                <button
+                                    onClick={onSignUpClick}
+                                    className="bg-blue-600 text-white px-6 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors duration-300"
+                                >
+                                    Sign Up
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Mobile Menu Button */}
+                        <div className="md:hidden flex items-center space-x-4">
+                            <button
+                                onClick={onSignInClick}
+                                className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium text-sm"
+                            >
+                                Sign In
+                            </button>
+                            <button
+                                onClick={onSignUpClick}
+                                className="bg-blue-600 text-white px-4 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 text-sm"
+                            >
+                                Sign Up
+                            </button>
+                            <button
+                                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                                className="p-2 text-gray-600 hover:text-gray-900 transition-colors duration-300"
+                            >
+                                <Menu className="h-6 w-6" />
+                            </button>
                         </div>
                     </div>
+
+                    {/* Mobile Menu */}
+                    {mobileMenuOpen && (
+                        <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-lg">
+                            <div className="px-6 py-4 space-y-4">
+                                <button
+                                    onClick={() => {
+                                        scrollToSection('features');
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="block w-full text-left text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium py-2"
+                                >
+                                    Features
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        scrollToSection('about');
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="block w-full text-left text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium py-2"
+                                >
+                                    About us
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        scrollToSection('contact');
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="block w-full text-left text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium py-2"
+                                >
+                                    Contact
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        scrollToSection('support');
+                                        setMobileMenuOpen(false);
+                                    }}
+                                    className="block w-full text-left text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium py-2"
+                                >
+                                    Support
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
             </nav>
 

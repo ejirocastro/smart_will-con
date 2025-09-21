@@ -11,6 +11,9 @@ export const metadata: Metadata = {
   description: 'Create, manage, and execute digital wills with blockchain technology. Ensure your assets reach the right people at the right time.',
   keywords: ['digital will', 'blockchain', 'inheritance', 'estate planning', 'crypto assets'],
   authors: [{ name: 'SmartWill Team' }],
+  icons: {
+    icon: '/favicon.ico',
+  },
   openGraph: {
     title: 'SmartWill - Secure Your Digital Legacy',
     description: 'Create, manage, and execute digital wills with blockchain technology.',

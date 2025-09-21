@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import LandingPage from '@/components/landing/LandingPage';
-import Login from '@/components/auth/Login';
-import Signup from '@/components/auth/Signup';
+import LoginModal from '@/components/auth/LoginModal';
+import SignupModal from '@/components/auth/SignupModal';
 import MainLayout from '@/components/layout/MainLayout';
 import Dashboard from '@/components/dashboard/Dashboard';
 import CreateWill from '@/components/forms/CreateWill';
@@ -22,7 +22,8 @@ import { Wallet, Lock } from 'lucide-react';
 
 const SmartWillApp: React.FC = () => {
   const [showApp, setShowApp] = useState<boolean>(false);
-  const [authView, setAuthView] = useState<'login' | 'signup'>('login');
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showSignupModal, setShowSignupModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const { willData } = useWillData();
@@ -31,46 +32,73 @@ const SmartWillApp: React.FC = () => {
 
   // Handle authentication flow
   const handleLogin = async (credentials: any) => {
-    await login(credentials);
+    try {
+      await login(credentials);
+      setShowLoginModal(false);
+    } catch (err) {
+      // Error will be displayed by the modal
+      console.error('Login failed:', err);
+    }
   };
 
   const handleSignup = async (data: any) => {
-    await signup(data);
+    try {
+      await signup(data);
+      setShowSignupModal(false);
+    } catch (err) {
+      // Error will be displayed by the modal
+      console.error('Signup failed:', err);
+    }
   };
 
-  const handleAuthViewSwitch = (view: 'login' | 'signup') => {
-    setAuthView(view);
+  const handleSwitchToSignup = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(true);
     clearError();
   };
 
-  // Show landing page if not authenticated and app not shown
-  if (!showApp && !isAuthenticated) {
-    return <LandingPage onGetStarted={() => setShowApp(true)} />;
-  }
+  const handleSwitchToLogin = () => {
+    setShowSignupModal(false);
+    setShowLoginModal(true);
+    clearError();
+  };
 
-  // Show authentication forms if app is shown but user not authenticated
-  if (showApp && !isAuthenticated) {
-    if (authView === 'login') {
-      return (
-        <Login
+  const handleCloseModals = () => {
+    setShowLoginModal(false);
+    setShowSignupModal(false);
+    clearError();
+  };
+
+  // Show landing page if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <>
+        <LandingPage 
+          onGetStarted={() => setShowApp(true)} 
+          onSignInClick={() => setShowLoginModal(true)}
+          onSignUpClick={() => setShowSignupModal(true)}
+        />
+        
+        {/* Auth Modals */}
+        <LoginModal
+          isOpen={showLoginModal}
+          onClose={handleCloseModals}
           onLogin={handleLogin}
-          onSwitchToSignup={() => handleAuthViewSwitch('signup')}
-          onLogoClick={() => setShowApp(false)}
+          onSwitchToSignup={handleSwitchToSignup}
           loading={loading}
           error={error || undefined}
         />
-      );
-    } else {
-      return (
-        <Signup
+        
+        <SignupModal
+          isOpen={showSignupModal}
+          onClose={handleCloseModals}
           onSignup={handleSignup}
-          onSwitchToLogin={() => handleAuthViewSwitch('login')}
-          onLogoClick={() => setShowApp(false)}
+          onSwitchToLogin={handleSwitchToLogin}
           loading={loading}
           error={error || undefined}
         />
-      );
-    }
+      </>
+    );
   }
 
   const renderContent = (): React.ReactNode => {
@@ -115,19 +143,40 @@ const SmartWillApp: React.FC = () => {
   };
 
   return (
-    <MainLayout
-      activeTab={activeTab}
-      setActiveTab={setActiveTab}
-      isConnected={isConnected}
-      setIsConnected={setIsConnected}
-      showHeartbeat={showHeartbeat}
-      onLogoClick={() => setShowApp(false)}
-      userRole={user?.role || 'owner'}
-      onLogout={logout}
-      user={user}
-    >
-      {renderContent()}
-    </MainLayout>
+    <>
+      <MainLayout
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        isConnected={isConnected}
+        setIsConnected={setIsConnected}
+        showHeartbeat={showHeartbeat}
+        onLogoClick={() => setShowApp(false)}
+        userRole={user?.role || 'owner'}
+        onLogout={logout}
+        user={user}
+      >
+        {renderContent()}
+      </MainLayout>
+      
+      {/* Auth Modals - Available even when authenticated for other users */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={handleCloseModals}
+        onLogin={handleLogin}
+        onSwitchToSignup={handleSwitchToSignup}
+        loading={loading}
+        error={error || undefined}
+      />
+      
+      <SignupModal
+        isOpen={showSignupModal}
+        onClose={handleCloseModals}
+        onSignup={handleSignup}
+        onSwitchToLogin={handleSwitchToLogin}
+        loading={loading}
+        error={error || undefined}
+      />
+    </>
   );
 };
 
