@@ -1,4 +1,7 @@
-// src/components/layout/MainLayout.tsx
+/**
+ * MainLayout Component
+ * Main application layout with sidebar navigation and top navbar
+ */
 'use client';
 
 import React, { useState } from 'react';

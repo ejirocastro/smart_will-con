@@ -1,3 +1,7 @@
+/**
+ * LandingPage Component
+ * Marketing landing page with interactive elements, animations, and conversion features
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -28,23 +32,33 @@ import {
 } from 'lucide-react';
 
 interface LandingPageProps {
+    /** Callback when user clicks get started button */
     onGetStarted?: () => void;
+    /** Callback when user clicks sign in */
     onSignInClick?: () => void;
+    /** Callback when user clicks sign up */
     onSignUpClick?: () => void;
 }
 
 const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, onSignUpClick }) => {
+    // UI state management
     const [isVisible, setIsVisible] = useState(false);
     const [scrollY, setScrollY] = useState(0);
     const [navbarBlur, setNavbarBlur] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+    
+    // Chat system state
     const [chatOpen, setChatOpen] = useState(false);
     const [chatMessages, setChatMessages] = useState([
         { id: 1, text: "Hi! I'm SmartWill AI. How can I help you with your digital legacy planning?", isBot: true }
     ]);
     const [inputMessage, setInputMessage] = useState('');
+    
+    // Interactive elements state
     const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+    
+    // Animation system state - blockchain nodes for background animation
     const [blockchainNodes, setBlockchainNodes] = useState<Array<{
         id: number;
         x: number;
@@ -54,6 +68,8 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
         moveSpeed: number;
         direction: number;
     }>>([]);
+    
+    // Particle system for visual effects
     const [particles, setParticles] = useState<Array<{
         id: number;
         x: number;
@@ -388,81 +404,85 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
                     aria-label="Main navigation"
                     className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${navbarBlur ? 'bg-white/80 backdrop-blur-xl border-b border-gray-200' : 'bg-transparent'
                         }`}>
-                    <div className="max-w-7xl mx-auto px-6 lg:px-8">
-                        <div className="flex items-center justify-between h-16">
-                            {/* Logo */}
-                            <button
-                                onClick={() => {
-                                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                                }}
-                                className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200"
-                                aria-label="SmartWill home"
-                            >
-                                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-                                    <Shield className="h-4 w-4 text-white" />
-                                </div>
-                                <span className="text-gray-900 font-semibold text-xl">SmartWill</span>
-                            </button>
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="flex items-center justify-between h-16 lg:h-20">
+                            {/* Logo - Far Left */}
+                            <div className="flex-shrink-0">
+                                <button
+                                    onClick={() => {
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="flex items-center space-x-2 sm:space-x-3 hover:opacity-80 transition-opacity duration-200"
+                                    aria-label="SmartWill home"
+                                >
+                                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-blue-600 flex items-center justify-center">
+                                        <Shield className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
+                                    </div>
+                                    <span className="text-gray-900 font-bold text-lg sm:text-xl lg:text-2xl">SmartWill</span>
+                                </button>
+                            </div>
 
-                            {/* Navigation Links */}
-                            <div className="hidden md:flex items-center space-x-10">
-                                <button
-                                    onClick={() => scrollToSection('features')}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
-                                >
-                                    Features
-                                </button>
-                                <button
-                                    onClick={() => scrollToSection('about')}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
-                                >
-                                    About us
-                                </button>
-                                <button
-                                    onClick={() => scrollToSection('contact')}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
-                                >
-                                    Contact
-                                </button>
-                                <button
-                                    onClick={() => scrollToSection('support')}
-                                    className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium"
-                                >
-                                    Support
-                                </button>
-
-                                {/* Auth Buttons */}
-                                <div className="flex items-center space-x-3 ml-8">
+                            {/* Center Navigation Links - Desktop Only */}
+                            <div className="hidden lg:flex items-center justify-center flex-1">
+                                <div className="flex items-center space-x-8 xl:space-x-12">
                                     <button
-                                        onClick={onSignInClick}
-                                        className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium px-4 py-2"
+                                        onClick={() => scrollToSection('features')}
+                                        className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium text-sm xl:text-base py-2"
                                     >
-                                        Sign In
+                                        Features
                                     </button>
                                     <button
-                                        onClick={onSignUpClick}
-                                        className="bg-blue-600 text-white px-6 py-2.5 rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 shadow-sm hover:shadow-md"
+                                        onClick={() => scrollToSection('about')}
+                                        className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium text-sm xl:text-base py-2"
                                     >
-                                        Get Started
+                                        About Us
+                                    </button>
+                                    <button
+                                        onClick={() => scrollToSection('contact')}
+                                        className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium text-sm xl:text-base py-2"
+                                    >
+                                        Contact
+                                    </button>
+                                    <button
+                                        onClick={() => scrollToSection('support')}
+                                        className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium text-sm xl:text-base py-2"
+                                    >
+                                        Support
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Mobile Menu Button */}
-                            <div className="md:hidden flex items-center space-x-3">
+                            {/* Auth Buttons - Far Right */}
+                            <div className="hidden md:flex items-center space-x-3 lg:space-x-4 flex-shrink-0">
+                                <button
+                                    onClick={onSignInClick}
+                                    className="text-gray-600 hover:text-gray-900 transition-colors duration-300 font-medium px-3 lg:px-4 py-2 text-sm lg:text-base"
+                                >
+                                    Sign In
+                                </button>
                                 <button
                                     onClick={onSignUpClick}
-                                    className="bg-blue-600 text-white px-5 py-2 rounded-full font-medium hover:bg-blue-700 transition-colors duration-300"
+                                    className="bg-blue-600 text-white px-4 lg:px-6 py-2 lg:py-2.5 rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 shadow-sm hover:shadow-md text-sm lg:text-base"
+                                >
+                                    Get Started
+                                </button>
+                            </div>
+
+                            {/* Mobile Menu Button - Tablet/Mobile */}
+                            <div className="md:hidden flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+                                <button
+                                    onClick={onSignUpClick}
+                                    className="bg-blue-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full font-medium hover:bg-blue-700 transition-colors duration-300 text-xs sm:text-sm"
                                 >
                                     Get Started
                                 </button>
                                 <button
                                     onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                    className="p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
+                                    className="p-2 sm:p-2.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-300"
                                     aria-label="Toggle navigation menu"
                                     aria-expanded={mobileMenuOpen}
                                 >
-                                    <Menu className="h-6 w-6" />
+                                    <Menu className="h-5 w-5 sm:h-6 sm:w-6" />
                                 </button>
                             </div>
                         </div>
@@ -470,17 +490,17 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
                         {/* Mobile Menu */}
                         {mobileMenuOpen && (
                             <div
-                                className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-lg"
+                                className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-b border-gray-200 shadow-lg z-40"
                                 role="dialog"
                                 aria-label="Mobile navigation menu"
                             >
-                                <div className="px-6 py-4 space-y-1">
+                                <div className="px-4 sm:px-6 py-4 space-y-1">
                                     <button
                                         onClick={() => {
                                             scrollToSection('features');
                                             setMobileMenuOpen(false);
                                         }}
-                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg"
+                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg text-sm sm:text-base"
                                     >
                                         Features
                                     </button>
@@ -489,16 +509,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
                                             scrollToSection('about');
                                             setMobileMenuOpen(false);
                                         }}
-                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg"
+                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg text-sm sm:text-base"
                                     >
-                                        About us
+                                        About Us
                                     </button>
                                     <button
                                         onClick={() => {
                                             scrollToSection('contact');
                                             setMobileMenuOpen(false);
                                         }}
-                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg"
+                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg text-sm sm:text-base"
                                     >
                                         Contact
                                     </button>
@@ -507,19 +527,19 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
                                             scrollToSection('support');
                                             setMobileMenuOpen(false);
                                         }}
-                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg"
+                                        className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg text-sm sm:text-base"
                                     >
                                         Support
                                     </button>
 
                                     {/* Mobile Auth Section */}
-                                    <div className="pt-4 border-t border-gray-200 mt-4">
+                                    <div className="pt-3 border-t border-gray-200 mt-3">
                                         <button
                                             onClick={() => {
                                                 onSignInClick?.();
                                                 setMobileMenuOpen(false);
                                             }}
-                                            className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg"
+                                            className="block w-full text-left text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200 font-medium py-3 px-3 rounded-lg text-sm sm:text-base"
                                         >
                                             Sign In
                                         </button>
@@ -534,7 +554,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
                 <section
                     role="banner"
                     aria-labelledby="hero-title"
-                    className="relative min-h-screen flex items-center justify-center overflow-hidden"
+                    className="relative min-h-screen flex items-center justify-center overflow-hidden px-4 sm:px-6 lg:px-8"
                 >
                     {/* Animated Blockchain Background */}
                     <div className="absolute inset-0 overflow-hidden">
@@ -1674,6 +1694,89 @@ const LandingPage: React.FC<LandingPageProps> = ({ onGetStarted, onSignInClick, 
                         </button>
                     )}
                 </div>
+
+                {/* Footer */}
+                <footer className="bg-gray-900 text-white relative overflow-hidden">
+                    {/* Background gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-900/20 to-purple-900/20"></div>
+                    
+                    <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                            {/* Company Info */}
+                            <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <Shield className="h-8 w-8 text-blue-400" />
+                                    <span className="text-xl font-bold">SmartWill</span>
+                                </div>
+                                <p className="text-gray-300 text-sm leading-relaxed">
+                                    Secure your digital legacy with blockchain technology. 
+                                    Protect what matters most for future generations.
+                                </p>
+                                <div className="flex space-x-4">
+                                    <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                        <Globe className="h-5 w-5" />
+                                    </a>
+                                    <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                        <Mail className="h-5 w-5" />
+                                    </a>
+                                    <a href="#" className="text-gray-400 hover:text-blue-400 transition-colors">
+                                        <Phone className="h-5 w-5" />
+                                    </a>
+                                </div>
+                            </div>
+
+                            {/* Product */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold">Product</h3>
+                                <ul className="space-y-2">
+                                    <li><a href="#features" className="text-gray-300 hover:text-white transition-colors text-sm">Features</a></li>
+                                    <li><a href="#security" className="text-gray-300 hover:text-white transition-colors text-sm">Security</a></li>
+                                    <li><a href="#pricing" className="text-gray-300 hover:text-white transition-colors text-sm">Pricing</a></li>
+                                    <li><a href="#integrations" className="text-gray-300 hover:text-white transition-colors text-sm">Integrations</a></li>
+                                </ul>
+                            </div>
+
+                            {/* Resources */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold">Resources</h3>
+                                <ul className="space-y-2">
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Documentation</a></li>
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Help Center</a></li>
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Blog</a></li>
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Community</a></li>
+                                </ul>
+                            </div>
+
+                            {/* Legal */}
+                            <div className="space-y-4">
+                                <h3 className="text-lg font-semibold">Legal</h3>
+                                <ul className="space-y-2">
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Privacy Policy</a></li>
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Terms of Service</a></li>
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">Cookie Policy</a></li>
+                                    <li><a href="#" className="text-gray-300 hover:text-white transition-colors text-sm">GDPR</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Bottom section */}
+                        <div className="border-t border-gray-700 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
+                            <div className="text-gray-400 text-sm">
+                                © 2024 SmartWill. All rights reserved.
+                            </div>
+                            <div className="flex items-center space-x-6 mt-4 md:mt-0">
+                                <div className="flex items-center space-x-2 text-gray-400 text-sm">
+                                    <Lock className="h-4 w-4" />
+                                    <span>Blockchain Secured</span>
+                                </div>
+                                <div className="flex items-center space-x-2 text-gray-400 text-sm">
+                                    <Shield className="h-4 w-4" />
+                                    <span>Enterprise Grade</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
             </main>
         </>
     );

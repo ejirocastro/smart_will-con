@@ -1,4 +1,7 @@
-// src/components/legacy/LegacyVault.tsx
+/**
+ * LegacyVault Component
+ * Digital vault for storing and managing memories, messages, and time capsules
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';

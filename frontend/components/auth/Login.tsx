@@ -1,3 +1,7 @@
+/**
+ * Login Component
+ * User authentication form with validation and error handling
+ */
 'use client';
 
 import React, { useState } from 'react';
@@ -5,14 +9,20 @@ import { LogIn, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react';
 import { LoginCredentials } from '@/types';
 
 interface LoginProps {
+    /** Callback function to handle user login with credentials */
     onLogin: (credentials: LoginCredentials) => Promise<void>;
+    /** Callback function to switch to signup form */
     onSwitchToSignup: () => void;
+    /** Callback function when logo is clicked */
     onLogoClick: () => void;
+    /** Loading state indicator for async operations */
     loading?: boolean;
+    /** Error message to display if login fails */
     error?: string;
 }
 
 const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToSignup, onLogoClick, loading = false, error }) => {
+    // Form state management
     const [credentials, setCredentials] = useState<LoginCredentials>({
         email: '',
         password: ''
@@ -20,15 +30,21 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToSignup, onLogoClick, l
     const [showPassword, setShowPassword] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Partial<LoginCredentials>>({});
 
+    /**
+     * Validates form input fields
+     * @returns {boolean} True if form is valid, false otherwise
+     */
     const validateForm = (): boolean => {
         const errors: Partial<LoginCredentials> = {};
 
+        // Email validation
         if (!credentials.email) {
             errors.email = 'Email is required';
         } else if (!/\S+@\S+\.\S+/.test(credentials.email)) {
             errors.email = 'Please enter a valid email';
         }
 
+        // Password validation
         if (!credentials.password) {
             errors.password = 'Password is required';
         } else if (credentials.password.length < 6) {
@@ -39,6 +55,10 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToSignup, onLogoClick, l
         return Object.keys(errors).length === 0;
     };
 
+    /**
+     * Handles form submission
+     * @param {React.FormEvent} e - Form submit event
+     */
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         
@@ -51,8 +71,14 @@ const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToSignup, onLogoClick, l
         }
     };
 
+    /**
+     * Handles input field changes and clears validation errors
+     * @param {keyof LoginCredentials} field - The credential field being updated
+     * @param {string} value - The new field value
+     */
     const handleInputChange = (field: keyof LoginCredentials, value: string) => {
         setCredentials(prev => ({ ...prev, [field]: value }));
+        
         // Clear validation error when user starts typing
         if (validationErrors[field]) {
             setValidationErrors(prev => ({ ...prev, [field]: undefined }));

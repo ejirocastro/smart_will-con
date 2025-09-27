@@ -1,44 +1,38 @@
+/**
+ * Authentication Context
+ * Provides authentication state and methods throughout the application
+ */
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { AuthState, User, LoginCredentials, SignupData, UserRole } from '@/types';
+import { AuthState, LoginCredentials, SignupData } from '@/types';
+import { apiClient } from '@/lib/api';
 
 interface AuthContextType extends AuthState {
+    /** Authenticate user with email and password */
     login: (credentials: LoginCredentials) => Promise<void>;
-    signup: (data: SignupData) => Promise<void>;
+    /** Register new user account */
+    signup: (data: SignupData) => Promise<{ requiresVerification?: boolean; email?: string }>;
+    /** Sign out current user and clear session */
     logout: () => void;
+    /** Complete user authentication after verification */
+    completeAuthentication: (user: any, token: string) => void;
+    /** Loading state for async operations */
     loading: boolean;
+    /** Current error message if any */
     error: string | null;
+    /** Clear current error state */
     clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user database
-const mockUsers = [
-    {
-        id: '1',
-        email: 'owner@example.com',
-        password: 'password123',
-        role: 'owner' as UserRole,
-        name: 'John Owner'
-    },
-    {
-        id: '2',
-        email: 'heir@example.com',
-        password: 'password123',
-        role: 'heir' as UserRole,
-        name: 'Sarah Heir'
-    },
-    {
-        id: '3',
-        email: 'verifier@example.com',
-        password: 'password123',
-        role: 'verifier' as UserRole,
-        name: 'Mike Verifier'
-    }
-];
 
+/**
+ * Custom hook to access authentication context
+ * @returns {AuthContextType} Authentication context with user state and methods
+ * @throws {Error} If used outside AuthProvider
+ */
 export const useAuth = (): AuthContextType => {
     const context = useContext(AuthContext);
     if (context === undefined) {
@@ -91,36 +85,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(null);
 
         try {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            const response = await apiClient.login(credentials);
 
-            // Find user in mock database
-            const user = mockUsers.find(
-                u => u.email === credentials.email && u.password === credentials.password
-            );
-
-            if (!user) {
-                throw new Error('Invalid email or password');
+            if (response.error) {
+                throw new Error(response.error);
             }
 
-            // Generate mock token
-            const token = `mock_token_${user.id}_${Date.now()}`;
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
 
-            // Create user object without password
-            const authUser: User = {
-                id: user.id,
-                email: user.email,
-                role: user.role,
-                name: user.name
-            };
+            const { user, token } = response.data as { user: any; token: string };
 
             // Store in localStorage
             localStorage.setItem('smartwill_token', token);
-            localStorage.setItem('smartwill_user', JSON.stringify(authUser));
+            localStorage.setItem('smartwill_user', JSON.stringify(user));
 
             // Update state
             setAuthState({
-                user: authUser,
+                user,
                 token,
                 isAuthenticated: true
             });
@@ -134,53 +117,46 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
-    const signup = async (data: SignupData): Promise<void> => {
+    const signup = async (data: SignupData): Promise<{ requiresVerification?: boolean; email?: string }> => {
         setLoading(true);
         setError(null);
 
         try {
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const response = await apiClient.signup(data);
 
-            // Check if email already exists
-            const existingUser = mockUsers.find(u => u.email === data.email);
-            if (existingUser) {
-                throw new Error('An account with this email already exists');
+            if (response.error) {
+                throw new Error(response.error);
             }
 
-            // Create new user
-            const newUser = {
-                id: `user_${Date.now()}`,
-                email: data.email,
-                password: data.password,
-                role: data.role,
-                name: data.name || 'New User'
-            };
+            if (!response.data) {
+                throw new Error('Invalid response from server');
+            }
 
-            // Add to mock database (in real app, this would be API call)
-            mockUsers.push(newUser);
+            // Check if response requires email verification
+            if ((response.data as any).requiresVerification) {
+                // Don't authenticate user yet - they need to verify email first
+                setError(null);
+                return { 
+                    requiresVerification: true, 
+                    email: (response.data as any).email || data.email 
+                };
+            }
 
-            // Generate mock token
-            const token = `mock_token_${newUser.id}_${Date.now()}`;
-
-            // Create user object without password
-            const authUser: User = {
-                id: newUser.id,
-                email: newUser.email,
-                role: newUser.role,
-                name: newUser.name
-            };
+            // Legacy path: if user is created immediately (shouldn't happen with email verification)
+            const { user, token } = response.data as { user: any; token: string };
 
             // Store in localStorage
             localStorage.setItem('smartwill_token', token);
-            localStorage.setItem('smartwill_user', JSON.stringify(authUser));
+            localStorage.setItem('smartwill_user', JSON.stringify(user));
 
             // Update state
             setAuthState({
-                user: authUser,
+                user,
                 token,
                 isAuthenticated: true
             });
+
+            return {};
 
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Signup failed';
@@ -206,6 +182,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(null);
     };
 
+    const completeAuthentication = (user: any, token: string): void => {
+        // Update state with verified user
+        setAuthState({
+            user,
+            token,
+            isAuthenticated: true
+        });
+        setError(null);
+    };
+
     const clearError = (): void => {
         setError(null);
     };
@@ -215,6 +201,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         login,
         signup,
         logout,
+        completeAuthentication,
         loading,
         error,
         clearError

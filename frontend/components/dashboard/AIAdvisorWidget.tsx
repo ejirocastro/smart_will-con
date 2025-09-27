@@ -1,4 +1,7 @@
-// src/components/dashboard/AIAdvisorWidget.tsx
+/**
+ * AIAdvisorWidget Component
+ * Dashboard widget displaying AI-powered recommendations for estate planning
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';

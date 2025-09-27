@@ -1,4 +1,7 @@
-// src/components/dashboard/StacksMarketWidget.tsx
+/**
+ * StacksMarketWidget Component
+ * Real-time Stacks cryptocurrency price display with trend visualization
+ */
 'use client';
 
 import React from 'react';

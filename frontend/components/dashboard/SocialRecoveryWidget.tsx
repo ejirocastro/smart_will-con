@@ -1,4 +1,7 @@
-// src/components/dashboard/SocialRecoveryWidget.tsx
+/**
+ * SocialRecoveryWidget Component
+ * Dashboard widget for managing social recovery guardians and wallet recovery
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';

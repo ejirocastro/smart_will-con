@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import LandingPage from '@/components/landing/LandingPage';
 import LoginModal from '@/components/auth/LoginModal';
 import SignupModal from '@/components/auth/SignupModal';
+import OTPVerificationModal from '@/components/auth/OTPVerificationModal';
 import MainLayout from '@/components/layout/MainLayout';
 import Dashboard from '@/components/dashboard/Dashboard';
 import CreateWill from '@/components/forms/CreateWill';
@@ -24,11 +25,13 @@ const SmartWillApp: React.FC = () => {
   const [showApp, setShowApp] = useState<boolean>(false);
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
   const [showSignupModal, setShowSignupModal] = useState<boolean>(false);
+  const [showEmailVerification, setShowEmailVerification] = useState<boolean>(false);
+  const [verificationEmail, setVerificationEmail] = useState<string>('');
   const [activeTab, setActiveTab] = useState<TabType>('dashboard');
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const { willData } = useWillData();
   const { showHeartbeat } = useHeartbeat();
-  const { isAuthenticated, user, login, signup, logout, loading, error, clearError } = useAuth();
+  const { isAuthenticated, user, login, signup, logout, completeAuthentication, loading, error, clearError } = useAuth();
 
   // Handle authentication flow
   const handleLogin = async (credentials: any) => {
@@ -43,8 +46,17 @@ const SmartWillApp: React.FC = () => {
 
   const handleSignup = async (data: any) => {
     try {
-      await signup(data);
-      setShowSignupModal(false);
+      const result = await signup(data);
+      
+      if (result.requiresVerification) {
+        // Show email verification screen
+        setVerificationEmail(result.email || data.email);
+        setShowSignupModal(false);
+        setShowEmailVerification(true);
+      } else {
+        // User created and logged in immediately (shouldn't happen with new flow)
+        setShowSignupModal(false);
+      }
     } catch (err) {
       // Error will be displayed by the modal
       console.error('Signup failed:', err);
@@ -66,7 +78,19 @@ const SmartWillApp: React.FC = () => {
   const handleCloseModals = () => {
     setShowLoginModal(false);
     setShowSignupModal(false);
+    setShowEmailVerification(false);
     clearError();
+  };
+
+  const handleVerificationComplete = (user: any, token: string) => {
+    // Complete authentication and close verification
+    completeAuthentication(user, token);
+    setShowEmailVerification(false);
+  };
+
+  const handleBackToSignup = () => {
+    setShowEmailVerification(false);
+    setShowSignupModal(true);
   };
 
   // Show landing page if not authenticated
@@ -96,6 +120,15 @@ const SmartWillApp: React.FC = () => {
           onSwitchToLogin={handleSwitchToLogin}
           loading={loading}
           error={error || undefined}
+        />
+        
+        {/* OTP Verification Modal */}
+        <OTPVerificationModal
+          isOpen={showEmailVerification}
+          email={verificationEmail}
+          onClose={handleCloseModals}
+          onVerificationComplete={handleVerificationComplete}
+          onBackToSignup={handleBackToSignup}
         />
       </>
     );

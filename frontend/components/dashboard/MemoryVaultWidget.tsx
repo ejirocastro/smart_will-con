@@ -1,4 +1,7 @@
-// src/components/dashboard/MemoryVaultWidget.tsx
+/**
+ * MemoryVaultWidget Component
+ * Dashboard widget for managing memory boxes and digital legacy content
+ */
 'use client';
 
 import React, { useState, useEffect } from 'react';

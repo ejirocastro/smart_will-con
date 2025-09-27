@@ -1,4 +1,7 @@
-// src/components/forms/CreateWill.tsx
+/**
+ * CreateWill Component
+ * Form for creating and configuring digital wills with beneficiaries and conditions
+ */
 'use client';
 
 import React, { useState } from 'react';
@@ -6,23 +9,36 @@ import { Users, Shield, Plus, Trash2 } from 'lucide-react';
 import { RELATIONSHIP_OPTIONS, TIME_LOCK_OPTIONS } from '@/utils/constants';
 
 interface BeneficiaryForm {
+    /** Beneficiary's full name */
     name: string;
+    /** Relationship to the will owner */
     relationship: string;
+    /** Percentage of assets allocated to this beneficiary */
     percentage: number;
+    /** Blockchain wallet address for asset distribution */
     walletAddress: string;
 }
 
 interface ConditionForm {
+    /** Age-based inheritance conditions */
     ageRequirement: {
+        /** Whether age requirement is enabled */
         enabled: boolean;
+        /** Minimum age required to inherit */
         minAge: number;
     };
+    /** Time-based inheritance delay */
     timeLock: {
+        /** Whether time lock is enabled */
         enabled: boolean;
+        /** Number of days to delay inheritance */
         days: number;
     };
+    /** Staged asset release configuration */
     stagedRelease: {
+        /** Whether staged release is enabled */
         enabled: boolean;
+        /** Number of release stages */
         stages: number;
     };
 }
@@ -40,6 +56,9 @@ const CreateWill: React.FC = () => {
 
     const [errors, setErrors] = useState<Record<string, string>>({});
 
+    /**
+     * Adds a new empty beneficiary form to the list
+     */
     const addBeneficiary = (): void => {
         setBeneficiaries([
             ...beneficiaries,
@@ -47,10 +66,20 @@ const CreateWill: React.FC = () => {
         ]);
     };
 
+    /**
+     * Removes a beneficiary from the list by index
+     * @param {number} index - Index of beneficiary to remove
+     */
     const removeBeneficiary = (index: number): void => {
         setBeneficiaries(beneficiaries.filter((_, i) => i !== index));
     };
 
+    /**
+     * Updates a specific field of a beneficiary
+     * @param {number} index - Index of beneficiary to update
+     * @param {keyof BeneficiaryForm} field - Field name to update
+     * @param {string | number} value - New value for the field
+     */
     const updateBeneficiary = (index: number, field: keyof BeneficiaryForm, value: string | number): void => {
         const updated = beneficiaries.map((ben, i) =>
             i === index ? { ...ben, [field]: value } : ben
@@ -113,22 +142,23 @@ const CreateWill: React.FC = () => {
     const totalPercentage = getTotalPercentage();
 
     return (
-        <div className="max-w-4xl mx-auto space-y-8">
-            <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold text-white mb-4">Create Your Digital Will</h2>
-                <p className="text-gray-400">Follow these steps to secure your digital legacy</p>
+        <div className="max-w-6xl mx-auto space-y-6 lg:space-y-8 px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-6 lg:mb-8">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-3 lg:mb-4">Create Your Digital Will</h2>
+                <p className="text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">Follow these steps to secure your digital legacy</p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form onSubmit={handleSubmit} className="space-y-6 lg:space-y-8">
                 {/* Beneficiaries Section */}
-                <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-6 border border-gray-800">
-                    <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-xl font-semibold text-white flex items-center">
-                            <Users className="h-5 w-5 mr-2 text-blue-500" />
-                            Beneficiaries
+                <div className="bg-gray-900/50 backdrop-blur-xl rounded-2xl p-4 sm:p-6 border border-gray-800">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 sm:mb-6 space-y-2 sm:space-y-0">
+                        <h3 className="text-lg sm:text-xl font-semibold text-white flex items-center">
+                            <Users className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-blue-500 flex-shrink-0" />
+                            <span>Beneficiaries</span>
                         </h3>
-                        <div className="text-sm">
-                            <span className={`font-medium ${totalPercentage === 100 ? 'text-green-400' : 'text-yellow-400'}`}>
+                        <div className="text-xs sm:text-sm">
+                            <span className={`font-medium px-3 py-1 rounded-full ${totalPercentage === 100 ? 'bg-green-500/20 text-green-400' : 
+                                totalPercentage > 100 ? 'bg-red-500/20 text-red-400' : 'bg-yellow-500/20 text-yellow-400'}`}>
                                 Total: {totalPercentage}%
                             </span>
                         </div>
