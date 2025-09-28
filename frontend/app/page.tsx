@@ -90,6 +90,14 @@ const SmartWillApp: React.FC = () => {
         return;
       }
 
+      // Handle wallet already exists - switch to login modal
+      if (err instanceof Error && err.message === 'WALLET_ALREADY_EXISTS') {
+        console.log('ℹ️ Page: Wallet already exists, switching to login modal');
+        setShowSignupModal(false);
+        setShowLoginModal(true);
+        return;
+      }
+
       console.error('❌ Page: Wallet signup failed:', err);
       // Error will be displayed by the modal through AuthContext
     }

@@ -247,6 +247,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 throw new Error('WALLET_CANCELED');
             }
 
+            // Handle wallet already exists - suggest login instead
+            if (err instanceof Error && err.message === 'WALLET_ALREADY_EXISTS') {
+                setError('This wallet is already registered. Please use "Sign In with Wallet" instead.');
+                console.log('ℹ️ AuthContext: Wallet already exists, suggesting login');
+                throw new Error('WALLET_ALREADY_EXISTS');
+            }
+
             const errorMessage = err instanceof Error ? err.message : 'Wallet signup failed';
             setError(errorMessage);
             console.error('❌ AuthContext: Wallet signup failed:', errorMessage);

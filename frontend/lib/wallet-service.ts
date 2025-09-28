@@ -659,6 +659,13 @@ class WalletService {
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({ error: 'Registration failed' }));
         console.error('❌ Backend registration error:', errorData);
+        
+        // Handle specific error types
+        if (response.status === 409) {
+          // User already exists - suggest login instead
+          throw new Error('WALLET_ALREADY_EXISTS');
+        }
+        
         throw new Error(errorData.error || `Registration failed: ${response.statusText}`);
       }
 

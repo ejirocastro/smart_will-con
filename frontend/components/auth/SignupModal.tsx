@@ -119,6 +119,12 @@ const SignupModal: React.FC<SignupModalProps> = ({
                 return;
             }
 
+            // Handle wallet already exists - let parent handle switching to login
+            if (error instanceof Error && error.message === 'WALLET_ALREADY_EXISTS') {
+                console.log('ℹ️ SignupModal: Wallet already exists, letting parent handle modal switch');
+                return;
+            }
+
             console.error('❌ SignupModal: Wallet signup failed:', error);
             // Handle other errors here if needed
         } finally {
