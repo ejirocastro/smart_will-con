@@ -31,7 +31,7 @@ const SmartWillApp: React.FC = () => {
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const { willData } = useWillData();
   const { showHeartbeat } = useHeartbeat();
-  const { isAuthenticated, user, login, signup, logout, completeAuthentication, loading, error, clearError } = useAuth();
+  const { isAuthenticated, user, login, signup, loginWithWallet, signupWithWallet, logout, completeAuthentication, loading, error, clearError } = useAuth();
 
   // Handle authentication flow
   const handleLogin = async (credentials: any) => {
@@ -47,7 +47,7 @@ const SmartWillApp: React.FC = () => {
   const handleSignup = async (data: any) => {
     try {
       const result = await signup(data);
-      
+
       if (result.requiresVerification) {
         // Show email verification screen
         setVerificationEmail(result.email || data.email);
@@ -60,6 +60,38 @@ const SmartWillApp: React.FC = () => {
     } catch (err) {
       // Error will be displayed by the modal
       console.error('Signup failed:', err);
+    }
+  };
+
+  // Handle wallet login
+  const handleWalletLogin = async () => {
+    try {
+      console.log('🔄 Page: Starting wallet login through AuthContext...');
+      await loginWithWallet();
+      setShowLoginModal(false);
+      console.log('✅ Page: Wallet login successful, modal closed');
+    } catch (err) {
+      console.error('❌ Page: Wallet login failed:', err);
+      // Error will be displayed by the modal through AuthContext
+    }
+  };
+
+  // Handle wallet signup
+  const handleWalletSignup = async () => {
+    try {
+      console.log('🔄 Page: Starting wallet signup through AuthContext...');
+      await signupWithWallet();
+      setShowSignupModal(false);
+      console.log('✅ Page: Wallet signup successful, modal closed');
+    } catch (err) {
+      // Handle user cancellation gracefully - don't log as error
+      if (err instanceof Error && err.message === 'WALLET_CANCELED') {
+        console.log('ℹ️ Page: User canceled wallet signup');
+        return;
+      }
+
+      console.error('❌ Page: Wallet signup failed:', err);
+      // Error will be displayed by the modal through AuthContext
     }
   };
 
@@ -97,31 +129,33 @@ const SmartWillApp: React.FC = () => {
   if (!isAuthenticated) {
     return (
       <>
-        <LandingPage 
-          onGetStarted={() => setShowApp(true)} 
+        <LandingPage
+          onGetStarted={() => setShowApp(true)}
           onSignInClick={() => setShowLoginModal(true)}
           onSignUpClick={() => setShowSignupModal(true)}
         />
-        
+
         {/* Auth Modals */}
         <LoginModal
           isOpen={showLoginModal}
           onClose={handleCloseModals}
           onLogin={handleLogin}
+          onWalletLogin={handleWalletLogin}
           onSwitchToSignup={handleSwitchToSignup}
           loading={loading}
           error={error || undefined}
         />
-        
+
         <SignupModal
           isOpen={showSignupModal}
           onClose={handleCloseModals}
           onSignup={handleSignup}
+          onWalletSignup={handleWalletSignup}
           onSwitchToLogin={handleSwitchToLogin}
           loading={loading}
           error={error || undefined}
         />
-        
+
         {/* OTP Verification Modal */}
         <OTPVerificationModal
           isOpen={showEmailVerification}
@@ -190,21 +224,23 @@ const SmartWillApp: React.FC = () => {
       >
         {renderContent()}
       </MainLayout>
-      
+
       {/* Auth Modals - Available even when authenticated for other users */}
       <LoginModal
         isOpen={showLoginModal}
         onClose={handleCloseModals}
         onLogin={handleLogin}
+        onWalletLogin={handleWalletLogin}
         onSwitchToSignup={handleSwitchToSignup}
         loading={loading}
         error={error || undefined}
       />
-      
+
       <SignupModal
         isOpen={showSignupModal}
         onClose={handleCloseModals}
         onSignup={handleSignup}
+        onWalletSignup={handleWalletSignup}
         onSwitchToLogin={handleSwitchToLogin}
         loading={loading}
         error={error || undefined}

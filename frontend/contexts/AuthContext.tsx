@@ -7,12 +7,17 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthState, LoginCredentials, SignupData } from '@/types';
 import { apiClient } from '@/lib/api';
+import { walletService } from '@/lib/wallet-service';
 
 interface AuthContextType extends AuthState {
     /** Authenticate user with email and password */
     login: (credentials: LoginCredentials) => Promise<void>;
     /** Register new user account */
     signup: (data: SignupData) => Promise<{ requiresVerification?: boolean; email?: string }>;
+    /** Authenticate user with wallet */
+    loginWithWallet: () => Promise<void>;
+    /** Register new user with wallet */
+    signupWithWallet: () => Promise<void>;
     /** Sign out current user and clear session */
     logout: () => void;
     /** Complete user authentication after verification */
@@ -60,7 +65,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             try {
                 const token = localStorage.getItem('smartwill_token');
                 const userStr = localStorage.getItem('smartwill_user');
-                
+
                 if (token && userStr) {
                     const user = JSON.parse(userStr);
                     setAuthState({
@@ -136,9 +141,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if ((response.data as any).requiresVerification) {
                 // Don't authenticate user yet - they need to verify email first
                 setError(null);
-                return { 
-                    requiresVerification: true, 
-                    email: (response.data as any).email || data.email 
+                return {
+                    requiresVerification: true,
+                    email: (response.data as any).email || data.email
                 };
             }
 
@@ -161,6 +166,90 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } catch (err) {
             const errorMessage = err instanceof Error ? err.message : 'Signup failed';
             setError(errorMessage);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loginWithWallet = async (): Promise<void> => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            console.log('🔄 AuthContext: Starting wallet login...');
+            const response = await walletService.loginWithWallet();
+
+            if (!response.success) {
+                throw new Error(response.error || 'Wallet login failed');
+            }
+
+            const { user, token } = response;
+
+            console.log('✅ AuthContext: Wallet login successful', { user, hasToken: !!token });
+
+            // Store in localStorage with same keys as email auth
+            localStorage.setItem('smartwill_token', token);
+            localStorage.setItem('smartwill_user', JSON.stringify(user));
+
+            // Update state
+            setAuthState({
+                user,
+                token,
+                isAuthenticated: true
+            });
+
+            console.log('✅ AuthContext: User authenticated with wallet');
+
+        } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Wallet login failed';
+            setError(errorMessage);
+            console.error('❌ AuthContext: Wallet login failed:', errorMessage);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const signupWithWallet = async (): Promise<void> => {
+        setLoading(true);
+        setError(null);
+
+        try {
+            console.log('🔄 AuthContext: Starting wallet signup...');
+            const response = await walletService.registerWithWallet();
+
+            if (!response.success) {
+                throw new Error(response.error || 'Wallet signup failed');
+            }
+
+            const { user, token } = response;
+
+            console.log('✅ AuthContext: Wallet signup successful', { user, hasToken: !!token });
+
+            // Store in localStorage with same keys as email auth
+            localStorage.setItem('smartwill_token', token);
+            localStorage.setItem('smartwill_user', JSON.stringify(user));
+
+            // Update state
+            setAuthState({
+                user,
+                token,
+                isAuthenticated: true
+            });
+
+            console.log('✅ AuthContext: User registered and authenticated with wallet');
+
+        } catch (err) {
+            // Handle user cancellation gracefully - don't show error
+            if (err instanceof Error && err.message === 'WALLET_CANCELED') {
+                console.log('ℹ️ AuthContext: User canceled wallet signup');
+                throw new Error('WALLET_CANCELED');
+            }
+
+            const errorMessage = err instanceof Error ? err.message : 'Wallet signup failed';
+            setError(errorMessage);
+            console.error('❌ AuthContext: Wallet signup failed:', errorMessage);
             throw err;
         } finally {
             setLoading(false);
@@ -200,6 +289,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         ...authState,
         login,
         signup,
+        loginWithWallet,
+        signupWithWallet,
         logout,
         completeAuthentication,
         loading,

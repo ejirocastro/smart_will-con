@@ -14,6 +14,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
+const databaseConnection = require('./config/database');
+const User = require('./models/User');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -23,7 +25,11 @@ const PORT = process.env.PORT || 3001;
 
 // CORS middleware - allow frontend to communicate with backend
 app.use(cors({
-    origin: process.env.FRONTEND_URL || 'http://localhost:3000',  // Frontend URL
+    origin: [
+        process.env.FRONTEND_URL || 'http://localhost:3000',
+        'http://localhost:3002',  // Additional port for development
+        'http://localhost:3001'   // Allow self-origin for health checks
+    ],
     credentials: true  // Allow cookies and credentials
 }));
 
@@ -33,12 +39,33 @@ app.use(express.json());
 // Authentication routes - all auth endpoints under /api/auth
 app.use('/api/auth', authRoutes);
 
+// Root endpoint - basic API info
+app.get('/', (_, res) => {
+    res.json({ 
+        service: 'SmartWill Backend API',
+        version: '1.0.0',
+        status: 'running',
+        endpoints: {
+            health: '/api/health',
+            auth: '/api/auth/*'
+        },
+        timestamp: new Date().toISOString()
+    });
+});
+
 // Health check endpoint - verify server is running
-app.get('/api/health', (_, res) => {
+app.get('/api/health', async (_, res) => {
+    const dbHealth = await databaseConnection.healthCheck();
+    const dbStatus = databaseConnection.getConnectionStatus();
+    
     res.json({ 
         status: 'OK', 
         timestamp: new Date().toISOString(),
-        service: 'SmartWill Backend'
+        service: 'SmartWill Backend',
+        database: {
+            ...dbHealth,
+            connectionStatus: dbStatus
+        }
     });
 });
 
@@ -60,10 +87,28 @@ app.use((req, res) => {
     });
 });
 
-// Start the server
-app.listen(PORT, () => {
-    console.log(`🚀 SmartWill Backend running on port ${PORT}`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`📧 Email service: ${process.env.NODE_ENV === 'production' ? 'Production SMTP' : 'Ethereal Email (dev)'}`);
-    console.log(`⚡ Health check: http://localhost:${PORT}/api/health`);
-});
+// Initialize database connection and start the server
+async function startServer() {
+    try {
+        // Connect to MongoDB
+        await databaseConnection.connect();
+        
+        // Initialize demo users for development
+        await User.initializeDemoUsers();
+        
+        // Start the server
+        app.listen(PORT, () => {
+            console.log(`🚀 SmartWill Backend running on port ${PORT}`);
+            console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+            console.log(`📧 Email service: Gmail SMTP configured`);
+            console.log(`📁 Database: Connected to MongoDB`);
+            console.log(`⚡ Health check: http://localhost:${PORT}/api/health`);
+        });
+    } catch (error) {
+        console.error('❌ Failed to start server:', error.message);
+        process.exit(1);
+    }
+}
+
+// Start the application
+startServer();

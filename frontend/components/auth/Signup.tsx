@@ -1,18 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
-import { UserPlus, Eye, EyeOff, Shield, AlertCircle, User, Users, CheckCircle } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, Shield, AlertCircle, User, Users, CheckCircle, Wallet } from 'lucide-react';
 import { SignupData, UserRole } from '@/types';
+import { walletService } from '@/lib/wallet-service';
 
 interface SignupProps {
     onSignup: (data: SignupData) => Promise<void>;
+    onWalletSignup?: (walletData: any) => Promise<void>;
     onSwitchToLogin: () => void;
     onLogoClick: () => void;
     loading?: boolean;
     error?: string;
 }
 
-const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick, loading = false, error }) => {
+const Signup: React.FC<SignupProps> = ({ onSignup, onWalletSignup, onSwitchToLogin, onLogoClick, loading = false, error }) => {
     const [formData, setFormData] = useState<SignupData>({
         email: '',
         password: '',
@@ -23,6 +25,7 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof (SignupData & { confirmPassword: string }), string>>>({});
+    const [walletLoading, setWalletLoading] = useState(false);
 
     const roleOptions = [
         {
@@ -83,7 +86,7 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         if (!validateForm()) return;
 
         try {
@@ -93,13 +96,36 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
         }
     };
 
+    /**
+     * Handles wallet signup
+     */
+    const handleWalletSignup = async () => {
+        if (!onWalletSignup) return;
+
+        setWalletLoading(true);
+        try {
+            const walletData = await walletService.registerWithWallet();
+            await onWalletSignup(walletData);
+        } catch (error) {
+            // Handle user cancellation gracefully - don't show error
+            if (error instanceof Error && error.message === 'WALLET_CANCELED') {
+                console.log('ℹ️ Signup: User canceled wallet signup');
+                return;
+            }
+
+            console.error('❌ Signup: Wallet signup failed:', error);
+        } finally {
+            setWalletLoading(false);
+        }
+    };
+
     const handleInputChange = (field: keyof SignupData | 'confirmPassword', value: string) => {
         if (field === 'confirmPassword') {
             setConfirmPassword(value);
         } else {
             setFormData(prev => ({ ...prev, [field]: value }));
         }
-        
+
         // Clear validation error when user starts typing
         if (validationErrors[field]) {
             setValidationErrors(prev => ({ ...prev, [field]: undefined }));
@@ -112,7 +138,7 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                 {/* Header */}
                 <div className="text-center mb-8">
                     <div className="flex justify-center mb-4">
-                        <button 
+                        <button
                             onClick={onLogoClick}
                             className="w-12 h-12 sm:w-16 sm:h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center hover:opacity-80 transition-opacity duration-200"
                             disabled={loading}
@@ -145,11 +171,10 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                                 type="text"
                                 value={formData.name || ''}
                                 onChange={(e) => handleInputChange('name', e.target.value)}
-                                className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors ${
-                                    validationErrors.name
+                                className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors ${validationErrors.name
                                         ? 'border-red-500 focus:ring-red-500/50'
                                         : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500/50'
-                                }`}
+                                    }`}
                                 placeholder="Enter your full name"
                                 disabled={loading}
                             />
@@ -168,11 +193,10 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                                 type="email"
                                 value={formData.email}
                                 onChange={(e) => handleInputChange('email', e.target.value)}
-                                className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors ${
-                                    validationErrors.email
+                                className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors ${validationErrors.email
                                         ? 'border-red-500 focus:ring-red-500/50'
                                         : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500/50'
-                                }`}
+                                    }`}
                                 placeholder="Enter your email"
                                 disabled={loading}
                             />
@@ -192,11 +216,10 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                                     return (
                                         <label
                                             key={role.value}
-                                            className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-colors hover:bg-gray-700/50 ${
-                                                formData.role === role.value
+                                            className={`flex items-start space-x-3 p-4 border rounded-lg cursor-pointer transition-colors hover:bg-gray-700/50 ${formData.role === role.value
                                                     ? 'border-blue-500 bg-blue-500/10'
                                                     : 'border-gray-600 bg-gray-700/30'
-                                            }`}
+                                                }`}
                                         >
                                             <input
                                                 type="radio"
@@ -212,11 +235,10 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                                                 <h4 className="text-white font-medium">{role.label}</h4>
                                                 <p className="text-gray-400 text-sm mt-1">{role.description}</p>
                                             </div>
-                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                                                formData.role === role.value
+                                            <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${formData.role === role.value
                                                     ? 'border-blue-500'
                                                     : 'border-gray-500'
-                                            }`}>
+                                                }`}>
                                                 {formData.role === role.value && (
                                                     <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                                                 )}
@@ -241,11 +263,10 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                                     type={showPassword ? 'text' : 'password'}
                                     value={formData.password}
                                     onChange={(e) => handleInputChange('password', e.target.value)}
-                                    className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors pr-12 ${
-                                        validationErrors.password
+                                    className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors pr-12 ${validationErrors.password
                                             ? 'border-red-500 focus:ring-red-500/50'
                                             : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500/50'
-                                    }`}
+                                        }`}
                                     placeholder="Create a password"
                                     disabled={loading}
                                 />
@@ -278,11 +299,10 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                                     type={showConfirmPassword ? 'text' : 'password'}
                                     value={confirmPassword}
                                     onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                                    className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors pr-12 ${
-                                        validationErrors.confirmPassword
+                                    className={`w-full px-4 py-3 bg-gray-700 border rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 transition-colors pr-12 ${validationErrors.confirmPassword
                                             ? 'border-red-500 focus:ring-red-500/50'
                                             : 'border-gray-600 focus:border-blue-500 focus:ring-blue-500/50'
-                                    }`}
+                                        }`}
                                     placeholder="Confirm your password"
                                     disabled={loading}
                                 />
@@ -323,6 +343,41 @@ const Signup: React.FC<SignupProps> = ({ onSignup, onSwitchToLogin, onLogoClick,
                             )}
                         </button>
                     </form>
+
+                    {/* Wallet Signup Option */}
+                    {onWalletSignup && (
+                        <>
+                            <div className="mt-6 flex items-center">
+                                <div className="flex-1 border-t border-gray-600"></div>
+                                <span className="px-4 text-gray-400 text-sm">or</span>
+                                <div className="flex-1 border-t border-gray-600"></div>
+                            </div>
+
+                            <button
+                                onClick={handleWalletSignup}
+                                disabled={loading || walletLoading}
+                                className="w-full mt-4 flex items-center justify-center space-x-2 bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {walletLoading ? (
+                                    <>
+                                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                        <span>Connecting Wallet...</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Wallet className="h-5 w-5" />
+                                        <span>Sign Up with Stacks Wallet</span>
+                                    </>
+                                )}
+                            </button>
+
+                            <div className="mt-3 text-center">
+                                <p className="text-gray-400 text-xs">
+                                    Connect your Stacks wallet to create an account instantly
+                                </p>
+                            </div>
+                        </>
+                    )}
 
                     {/* Switch to Login */}
                     <div className="mt-6 text-center">

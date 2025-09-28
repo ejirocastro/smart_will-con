@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
 const emailService = require('../services/emailService');
+const walletService = require('../services/walletService');
 const { generateToken, authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
@@ -199,7 +200,7 @@ router.post('/verify-email', async (req, res) => {
         }
 
         // Create the user account now that email is verified
-        const newUser = await User.create(verification.userData);
+        const newUser = await User.createEmailUser(verification.userData);
 
         // Generate JWT authentication token for immediate login
         const authToken = generateToken(newUser);
@@ -304,6 +305,354 @@ router.post('/refresh', authenticateToken, async (req, res) => {
         console.error('Token refresh error:', error);
         res.status(500).json({ 
             error: 'Token refresh failed' 
+        });
+    }
+});
+
+// =================================================================
+// WALLET AUTHENTICATION ENDPOINTS
+// =================================================================
+
+// Generate challenge for wallet authentication
+router.get('/wallet/challenge', async (req, res) => {
+    try {
+        const { address, type = 'connection', paymentId, amount } = req.query;
+
+        // Validate required parameters
+        if (!address) {
+            return res.status(400).json({
+                success: false,
+                error: 'Wallet address is required'
+            });
+        }
+
+        // Validate Stacks address format
+        if (!walletService.isValidStacksAddress(address)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid Stacks address format'
+            });
+        }
+
+        // Generate challenge
+        const challengeData = walletService.generateChallenge(address, type, {
+            paymentId,
+            amount: amount ? parseFloat(amount) : undefined
+        });
+
+        console.log(`📋 Challenge generated for ${address}`);
+
+        res.json({
+            success: true,
+            challenge: challengeData.challenge,
+            challengeId: challengeData.challengeId,
+            expiresAt: challengeData.expiresAt
+        });
+
+    } catch (error) {
+        console.error('Challenge generation error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to generate challenge'
+        });
+    }
+});
+
+// Register new user with wallet authentication (simplified)
+router.post('/register/wallet', async (req, res) => {
+    try {
+        const {
+            walletAddress,
+            publicKey,
+            walletType = 'stacks',
+            authMethod = 'wallet'
+        } = req.body;
+
+        console.log('📥 Wallet registration request:', {
+            walletAddress,
+            walletType,
+            authMethod,
+            hasPublicKey: !!publicKey
+        });
+
+        // Validate required fields
+        if (!walletAddress) {
+            return res.status(400).json({
+                success: false,
+                error: 'Wallet address is required'
+            });
+        }
+
+        // Validate Stacks address format
+        if (!walletService.isValidStacksAddress(walletAddress)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Invalid Stacks address format'
+            });
+        }
+
+        // Check if user already exists with this wallet address
+        const existingUser = await User.findByWalletAddress(walletAddress);
+        if (existingUser) {
+            return res.status(409).json({
+                success: false,
+                error: 'User with this wallet address already exists'
+            });
+        }
+
+        // Create new user with wallet authentication
+        const userData = {
+            walletAddress,
+            publicKey: publicKey || '', // Optional for simplified approach
+            walletType,
+            authMethod,
+            emailVerified: true, // Wallet users are considered verified
+            role: 'owner', // Default role
+            name: `User ${walletAddress.substring(0, 8)}...`, // Default name
+            createdAt: new Date(),
+            profile: {
+                name: `User ${walletAddress.substring(0, 8)}...`,
+                avatar: null
+            }
+        };
+
+        console.log('👤 Creating user with data:', {
+            walletAddress: userData.walletAddress,
+            role: userData.role,
+            name: userData.name,
+            authMethod: userData.authMethod
+        });
+
+        const user = await User.create(userData);
+        
+        // Generate JWT token
+        const token = generateToken({
+            userId: user._id || user.id,
+            walletAddress: user.walletAddress,
+            authMethod: 'wallet'
+        });
+
+        console.log(`✅ New user registered with wallet: ${walletAddress}`);
+
+        res.status(201).json({
+            success: true,
+            message: 'User registered successfully with wallet',
+            user: {
+                id: user._id || user.id,
+                walletAddress: user.walletAddress,
+                walletType: user.walletType,
+                authMethod: user.authMethod,
+                role: user.role,
+                name: user.name,
+                profile: user.profile,
+                createdAt: user.createdAt
+            },
+            token
+        });
+
+    } catch (error) {
+        console.error('Wallet registration error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Registration failed',
+            details: error.message
+        });
+    }
+});
+
+// Login with wallet authentication (simplified)
+router.post('/login/wallet', async (req, res) => {
+    try {
+        const {
+            walletAddress,
+            walletType = 'stacks'
+        } = req.body;
+
+        console.log('📥 Wallet login request:', {
+            walletAddress,
+            walletType
+        });
+
+        // Validate required fields
+        if (!walletAddress) {
+            return res.status(400).json({
+                success: false,
+                error: 'Wallet address is required'
+            });
+        }
+
+        // Find user by wallet address
+        const user = await User.findByWalletAddress(walletAddress);
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                error: 'No account found with this wallet address'
+            });
+        }
+
+        // Update last login time
+        await User.updateLastLogin(user._id || user.id);
+
+        // Generate JWT token
+        const token = generateToken({
+            userId: user._id || user.id,
+            walletAddress: user.walletAddress,
+            authMethod: 'wallet'
+        });
+
+        console.log(`✅ User logged in with wallet: ${walletAddress}`);
+
+        res.json({
+            success: true,
+            message: 'Login successful',
+            user: {
+                id: user._id || user.id,
+                walletAddress: user.walletAddress,
+                walletType: user.walletType,
+                authMethod: user.authMethod,
+                role: user.role,
+                name: user.name,
+                profile: user.profile,
+                lastLogin: new Date()
+            },
+            token
+        });
+
+    } catch (error) {
+        console.error('Wallet login error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Login failed',
+            details: error.message
+        });
+    }
+});
+
+// Connect wallet to existing email-based account
+router.post('/connect-wallet', authenticateToken, async (req, res) => {
+    try {
+        const {
+            address,
+            signature,
+            message,
+            publicKey,
+            walletType = 'stacks'
+        } = req.body;
+
+        // Validate required fields
+        if (!address || !signature || !message || !publicKey) {
+            return res.status(400).json({
+                success: false,
+                error: 'Address, signature, message, and publicKey are required'
+            });
+        }
+
+        // Verify signature and challenge
+        const validation = walletService.validateChallengeResponse(
+            message,
+            signature,
+            publicKey,
+            address
+        );
+
+        if (!validation.success) {
+            return res.status(400).json({
+                success: false,
+                error: validation.error || 'Signature verification failed'
+            });
+        }
+
+        // Check if wallet is already connected to another account
+        const existingWalletUser = await User.findByWalletAddress(address);
+        if (existingWalletUser && existingWalletUser._id.toString() !== req.user.userId) {
+            return res.status(409).json({
+                success: false,
+                error: 'This wallet is already connected to another account'
+            });
+        }
+
+        // Update current user with wallet information
+        const updatedUser = await User.connectWallet(req.user.userId, {
+            walletAddress: address,
+            publicKey,
+            walletType
+        });
+
+        console.log(`✅ Wallet connected to user: ${req.user.userId}`);
+
+        res.json({
+            success: true,
+            message: 'Wallet connected successfully',
+            user: {
+                id: updatedUser._id,
+                email: updatedUser.email,
+                walletAddress: updatedUser.walletAddress,
+                walletType: updatedUser.walletType,
+                authMethod: updatedUser.authMethod
+            }
+        });
+
+    } catch (error) {
+        console.error('Wallet connection error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to connect wallet'
+        });
+    }
+});
+
+// Verify wallet signature (for additional security checks)
+router.post('/wallet/verify', async (req, res) => {
+    try {
+        const {
+            address,
+            signature,
+            message,
+            publicKey
+        } = req.body;
+
+        // Validate required fields
+        if (!address || !signature || !message || !publicKey) {
+            return res.status(400).json({
+                success: false,
+                error: 'Address, signature, message, and publicKey are required'
+            });
+        }
+
+        // Verify signature
+        const verification = walletService.verifySignature(message, signature, publicKey, address);
+
+        res.json({
+            success: verification.success,
+            verified: verification.verified,
+            error: verification.error
+        });
+
+    } catch (error) {
+        console.error('Signature verification error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Verification failed'
+        });
+    }
+});
+
+// Get wallet service statistics (for monitoring)
+router.get('/wallet/stats', authenticateToken, async (req, res) => {
+    try {
+        // Only allow admin users to see stats (you can implement admin check)
+        const stats = walletService.getChallengeStats();
+        
+        res.json({
+            success: true,
+            stats
+        });
+
+    } catch (error) {
+        console.error('Stats error:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get stats'
         });
     }
 });

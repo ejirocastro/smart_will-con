@@ -86,7 +86,7 @@ const TopNavbar: React.FC<TopNavbarProps> = ({
                     >
                         <User className="h-4 w-4 text-gray-300" />
                         <span className="text-gray-300 text-sm font-medium hidden sm:block truncate max-w-24">
-                            {user?.name || user?.email}
+                            {user?.name || user?.email || (user as any)?.walletAddress?.substring(0, 8) + '...'}
                         </span>
                         <ChevronDown className="h-4 w-4 text-gray-300" />
                     </button>
@@ -96,8 +96,12 @@ const TopNavbar: React.FC<TopNavbarProps> = ({
                         <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-50">
                             <div className="p-3 border-b border-gray-700">
                                 <p className="text-white text-sm font-medium truncate">{user?.name}</p>
-                                <p className="text-gray-400 text-xs truncate">{user?.email}</p>
-                                <p className="text-blue-400 text-xs capitalize">{user?.role}</p>
+                                <p className="text-gray-400 text-xs truncate">
+                                    {user?.email || ((user as any)?.walletAddress ? `Wallet: ${(user as any)?.walletAddress?.substring(0, 12)}...` : '')}
+                                </p>
+                                <p className="text-blue-400 text-xs capitalize">
+                                    {user?.role} • {(user as any)?.authMethod || 'email'}
+                                </p>
                             </div>
                             <button
                                 onClick={() => {

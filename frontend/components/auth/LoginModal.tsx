@@ -1,14 +1,16 @@
 'use client';
 
 import React, { useState } from 'react';
-import { LogIn, Eye, EyeOff, Shield, AlertCircle } from 'lucide-react';
+import { LogIn, Eye, EyeOff, Shield, AlertCircle, Wallet } from 'lucide-react';
 import { LoginCredentials } from '@/types';
 import Modal from '@/components/common/Modal';
+import { walletService } from '@/lib/wallet-service';
 
 interface LoginModalProps {
     isOpen: boolean;
     onClose: () => void;
     onLogin: (credentials: LoginCredentials) => Promise<void>;
+    onWalletLogin?: () => Promise<void>;
     onSwitchToSignup: () => void;
     loading?: boolean;
     error?: string;
@@ -18,6 +20,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     isOpen, 
     onClose, 
     onLogin, 
+    onWalletLogin,
     onSwitchToSignup, 
     loading = false, 
     error 
@@ -28,6 +31,7 @@ const LoginModal: React.FC<LoginModalProps> = ({
     });
     const [showPassword, setShowPassword] = useState(false);
     const [validationErrors, setValidationErrors] = useState<Partial<LoginCredentials>>({});
+    const [walletLoading, setWalletLoading] = useState(false);
 
     const validateForm = (): boolean => {
         const errors: Partial<LoginCredentials> = {};
@@ -57,6 +61,27 @@ const LoginModal: React.FC<LoginModalProps> = ({
             await onLogin(credentials);
         } catch (err) {
             console.error('Login failed:', err);
+        }
+    };
+
+    const handleWalletLogin = async () => {
+        if (!onWalletLogin) return;
+        
+        setWalletLoading(true);
+        try {
+            await onWalletLogin();
+        } catch (error) {
+            console.error('Wallet login failed:', error);
+            
+            // Don't show error for user cancellation
+            if (error instanceof Error && error.message.includes('canceled')) {
+                console.log('User canceled wallet login');
+                return;
+            }
+            
+            // Handle other errors here if needed
+        } finally {
+            setWalletLoading(false);
         }
     };
 
@@ -189,6 +214,35 @@ const LoginModal: React.FC<LoginModalProps> = ({
                         )}
                     </button>
                 </form>
+
+                {/* Wallet Login Option */}
+                {onWalletLogin && (
+                    <>
+                        <div className="mt-6 flex items-center">
+                            <div className="flex-1 border-t border-gray-300"></div>
+                            <span className="px-4 text-gray-500 text-sm">or</span>
+                            <div className="flex-1 border-t border-gray-300"></div>
+                        </div>
+
+                        <button
+                            onClick={handleWalletLogin}
+                            disabled={loading || walletLoading}
+                            className="w-full mt-4 flex items-center justify-center space-x-2 bg-purple-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                            {walletLoading ? (
+                                <>
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                                    <span>Connecting Wallet...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Wallet className="h-5 w-5" />
+                                    <span>Connect Stacks Wallet</span>
+                                </>
+                            )}
+                        </button>
+                    </>
+                )}
 
                 {/* Switch to Signup */}
                 <div className="mt-6 text-center">
