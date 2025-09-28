@@ -3,7 +3,7 @@
  * Handles HTTP requests and authentication
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 interface ApiResponse<T = any> {
     data?: T;
@@ -72,7 +72,7 @@ class ApiClient {
      * Authentication endpoints
      */
     async login(credentials: { email: string; password: string }) {
-        return this.request('/auth/login', {
+        return this.request('/api/auth/login', {
             method: 'POST',
             body: JSON.stringify(credentials)
         });
@@ -84,37 +84,37 @@ class ApiClient {
         role: string; 
         name?: string; 
     }) {
-        return this.request('/auth/signup', {
+        return this.request('/api/auth/signup', {
             method: 'POST',
             body: JSON.stringify(userData)
         });
     }
 
     async getCurrentUser() {
-        return this.request('/auth/me');
+        return this.request('/api/auth/me');
     }
 
     async logout() {
-        return this.request('/auth/logout', {
+        return this.request('/api/auth/logout', {
             method: 'POST'
         });
     }
 
     async refreshToken() {
-        return this.request('/auth/refresh', {
+        return this.request('/api/auth/refresh', {
             method: 'POST'
         });
     }
 
     async verifyEmail(code: string, email: string) {
-        return this.request('/auth/verify-email', {
+        return this.request('/api/auth/verify-email', {
             method: 'POST',
             body: JSON.stringify({ code, email })
         });
     }
 
     async resendVerification(email: string) {
-        return this.request('/auth/resend-verification', {
+        return this.request('/api/auth/resend-verification', {
             method: 'POST',
             body: JSON.stringify({ email })
         });

@@ -1,0 +1,12 @@
+{
+  "functions": {
+    "app/api/**": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "NEXT_PUBLIC_API_URL": "https://smart-will-con.onrender.com",
+    "NEXT_PUBLIC_STACKS_NETWORK": "testnet",
+    "NEXT_PUBLIC_ENV": "production"
+  }
+}
