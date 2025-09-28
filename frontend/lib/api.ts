@@ -3,7 +3,7 @@
  * Handles HTTP requests and authentication
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://smart-will-con.onrender.com';
 
 interface ApiResponse<T = any> {
     data?: T;

@@ -31,7 +31,7 @@ app.use(cors({
         'http://localhost:3001',  // Allow self-origin for health checks
         /\.vercel\.app$/,         // Allow all Vercel domains
         /\.netlify\.app$/,        // Allow Netlify domains (backup)
-        'https://smart-will-con.vercel.app'  // Specific production domain
+        'https://smart-will-con-bzm2.vercel.app/'  // Specific production domain
     ],
     credentials: true  // Allow cookies and credentials
 }));
