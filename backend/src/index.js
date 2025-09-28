@@ -31,9 +31,14 @@ app.use(cors({
         'http://localhost:3001',  // Allow self-origin for health checks
         /\.vercel\.app$/,         // Allow all Vercel domains
         /\.netlify\.app$/,        // Allow Netlify domains (backup)
-        'https://smart-will-con-bzm2.vercel.app/'  // Specific production domain
+        'https://smart-will-con-bzm2.vercel.app',  // Specific production domain (without trailing slash)
+        'https://smart-will-con.vercel.app'        // Alternative production domain
     ],
-    credentials: true  // Allow cookies and credentials
+    credentials: true,  // Allow cookies and credentials
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    preflightContinue: false,
+    optionsSuccessStatus: 200
 }));
 
 // JSON parsing middleware - parse incoming JSON requests
@@ -69,6 +74,17 @@ app.get('/api/health', async (_, res) => {
             ...dbHealth,
             connectionStatus: dbStatus
         }
+    });
+});
+
+// CORS debug endpoint - help troubleshoot CORS issues
+app.get('/api/cors-test', (req, res) => {
+    res.json({
+        message: 'CORS test successful',
+        origin: req.headers.origin,
+        userAgent: req.headers['user-agent'],
+        timestamp: new Date().toISOString(),
+        headers: req.headers
     });
 });
 
