@@ -131,87 +131,31 @@ router.post('/signup', async (req, res) => {
             });
         }
 
-        // Check if there's already a pending verification for this email
-        if (EmailVerification.hasPendingVerification(email)) {
-            return res.status(400).json({ 
-                error: 'A verification email has already been sent. Please check your inbox or wait before requesting a new one.' 
-            });
-        }
+        // BYPASS EMAIL VERIFICATION - Create user account immediately
+        console.log('⚡ Bypassing email verification - creating user account directly');
 
-        // Generate 6-digit verification code and store user data temporarily
-        const userData = { email, password, role, name };
-        const verificationCode = EmailVerification.generateVerificationCode(email, userData);
+        // Create user account immediately without verification
+        const newUser = await User.createEmailUser({
+            email,
+            password,
+            role,
+            name,
+            emailVerified: true, // Set as verified immediately
+            verifiedAt: new Date() // Set verification timestamp
+        });
 
-        // Send verification email with 6-digit code
-        console.log('🔄 Starting email send process...');
-        const startTime = Date.now();
-        
-        // Send verification email with 6-digit code
-        let emailResult = { success: true, previewUrl: null };
-        
-        try {
-            console.log('📧 Sending verification email via SMTP...');
-            
-            // Use Vercel-optimized email service for production
-            if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-                console.log('📧 Using Vercel-optimized email service...');
-                emailResult = await vercelEmailService.sendVerificationEmail(email, verificationCode);
-            } else {
-                console.log('📧 Using standard email service...');
-                emailResult = await emailService.sendVerificationEmail(email, verificationCode);
-            }
-            
-            const endTime = Date.now();
-            console.log(`📧 Email process completed in ${endTime - startTime}ms`);
+        // Generate JWT token for immediate login
+        const token = generateToken(newUser);
 
-            if (!emailResult.success) {
-                console.error('❌ Email sending failed:', emailResult.error);
-            } else {
-                console.log('✅ Verification email sent successfully to:', email);
-            }
-            
-            // Always log code as backup for development/debugging
-            console.log(`🔢 VERIFICATION CODE for ${email}: ${verificationCode}`);
-            
-        } catch (emailError) {
-            const endTime = Date.now();
-            console.error(`❌ Email error after ${endTime - startTime}ms:`, emailError.message);
-            
-            // On Vercel, continue anyway to prevent total failure
-            if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-                console.log('🔢 EMAIL FAILED - VERIFICATION CODE for', email, ':', verificationCode);
-                console.log('⚠️ Production: Continuing despite email error to prevent timeout');
-                console.log('📧 Email will be sent asynchronously or user can use verification code from logs');
-                emailResult = { success: true, previewUrl: null }; // Pretend success to continue flow
-            } else {
-                throw emailError; // Rethrow on local development
-            }
-        }
+        console.log('✅ User account created successfully, bypassing email verification');
+        console.log(`👤 User logged in: ${email}`);
 
-        // For production/Vercel, include verification code if email failed
-        const response = {
-            message: 'Verification code sent! Please check your email and enter the 6-digit code to complete your registration.',
-            email: email,
-            requiresVerification: true,
-            codeExpiry: '15 minutes',
-            previewUrl: emailResult.previewUrl, // For development only
-        };
-
-        // Add debug info for non-production or if email failed
-        if (process.env.NODE_ENV !== 'production') {
-            response.devNote = 'Check the backend console for the verification code';
-        }
-
-        // If we're on Vercel/production and email might have failed, provide fallback
-        if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
-            response.fallbackNote = 'If you don\'t receive the email, contact support with your email address for the verification code.';
-            // Optional: In development/staging, you might want to include the code directly
-            if (process.env.NODE_ENV === 'staging') {
-                response.verificationCode = verificationCode; // Only for staging
-            }
-        }
-
-        res.status(200).json(response);
+        res.status(201).json({
+            message: 'Account created successfully! You are now logged in.',
+            user: User.sanitizeUser(newUser),
+            token,
+            requiresVerification: false // No verification needed
+        });
 
     } catch (error) {
         console.error('Signup error:', error);

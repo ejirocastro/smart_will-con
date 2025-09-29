@@ -155,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 };
             }
 
-            // Legacy path: if user is created immediately (shouldn't happen with email verification)
+            // User created immediately (email verification bypassed)
             const { user, token } = response.data as { user: any; token: string };
 
             // Store in localStorage
