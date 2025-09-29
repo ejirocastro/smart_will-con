@@ -16,6 +16,7 @@ const dotenv = require('dotenv');
 const authRoutes = require('./routes/auth');
 const databaseConnection = require('./config/database');
 const User = require('./models/User');
+const { logEnvironmentInfo } = require('./utils/serverless');
 
 // Load environment variables from .env file
 dotenv.config();
@@ -43,6 +44,20 @@ app.use(cors({
 
 // JSON parsing middleware - parse incoming JSON requests
 app.use(express.json());
+
+// Database connection middleware - ensure connection before API requests
+app.use('/api', async (req, res, next) => {
+    try {
+        await databaseConnection.connect();
+        next();
+    } catch (error) {
+        console.error('❌ Database connection failed in middleware:', error.message);
+        res.status(500).json({ 
+            error: 'Database connection failed',
+            message: 'Unable to process request at this time'
+        });
+    }
+});
 
 // Authentication routes - all auth endpoints under /api/auth
 app.use('/api/auth', authRoutes);
@@ -118,7 +133,7 @@ async function startServer() {
         // Start the server
         app.listen(PORT, () => {
             console.log(`🚀 SmartWill Backend running on port ${PORT}`);
-            console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+            logEnvironmentInfo();
             console.log(`📧 Email service: Gmail SMTP configured`);
             console.log(`📁 Database: Connected to MongoDB`);
             console.log(`⚡ Health check: http://localhost:${PORT}/api/health`);
