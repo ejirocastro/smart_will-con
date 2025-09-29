@@ -219,16 +219,28 @@ class WalletService {
         console.log("❌ Recovery attempt failed:", recoveryError);
       }
       
-      // Only throw canceled error if we truly have no wallet data
-      if (error instanceof Error && error.message.includes('User canceled')) {
-        console.log('ℹ️ User actually canceled wallet connection');
-        throw new Error('WALLET_CANCELED');
+      // Handle different types of errors more gracefully
+      if (error instanceof Error) {
+        if (error.message.includes('User canceled') || error.message.includes('User rejected')) {
+          console.log('ℹ️ User canceled wallet connection');
+          throw new Error('WALLET_CANCELED');
+        }
+        
+        if (error.message.includes('No wallet provider')) {
+          console.log('ℹ️ No wallet provider detected');
+          throw new Error('WALLET_NOT_INSTALLED');
+        }
+        
+        if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+          console.log('ℹ️ Wallet connection timed out');
+          throw new Error('WALLET_TIMEOUT');
+        }
       }
       
       // For any other error, provide detailed information
       const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
       console.error('❌ Wallet connection failed with error:', errorMessage);
-      throw new Error(`Wallet connection failed: ${errorMessage}`);
+      throw new Error(`WALLET_CONNECTION_FAILED: ${errorMessage}`);
     }
   }
 
@@ -688,10 +700,26 @@ class WalletService {
       return result;
       
     } catch (error) {
-      // Handle user cancellation gracefully - don't log as error
-      if (error instanceof Error && error.message === 'WALLET_CANCELED') {
-        console.log('ℹ️ User canceled wallet registration');
-        throw new Error('WALLET_CANCELED');
+      // Handle different wallet errors gracefully
+      if (error instanceof Error) {
+        if (error.message === 'WALLET_CANCELED') {
+          console.log('ℹ️ User canceled wallet registration');
+          throw error;
+        }
+        
+        if (error.message === 'WALLET_NOT_INSTALLED') {
+          console.log('ℹ️ Wallet not installed during registration');
+          throw error;
+        }
+        
+        if (error.message === 'WALLET_TIMEOUT') {
+          console.log('ℹ️ Wallet connection timed out during registration');
+          throw error;
+        }
+        
+        if (error.message === 'WALLET_ALREADY_EXISTS') {
+          throw error;
+        }
       }
       
       console.error('❌ Wallet registration failed:', error);
@@ -818,6 +846,24 @@ class WalletService {
       return result;
       
     } catch (error) {
+      // Handle different wallet errors gracefully
+      if (error instanceof Error) {
+        if (error.message === 'WALLET_CANCELED') {
+          console.log('ℹ️ User canceled wallet login');
+          throw error;
+        }
+        
+        if (error.message === 'WALLET_NOT_INSTALLED') {
+          console.log('ℹ️ Wallet not installed during login');
+          throw error;
+        }
+        
+        if (error.message === 'WALLET_TIMEOUT') {
+          console.log('ℹ️ Wallet connection timed out during login');
+          throw error;
+        }
+      }
+      
       console.error('❌ Wallet login failed:', error);
       throw new Error(error instanceof Error ? error.message : 'Failed to login with wallet');
     }

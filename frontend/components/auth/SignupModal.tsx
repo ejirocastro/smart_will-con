@@ -100,9 +100,16 @@ const SignupModal: React.FC<SignupModalProps> = ({
         if (!validateForm()) return;
 
         try {
+            console.log('🔄 SignupModal: Starting form submission...');
+            console.log('📝 Form data:', { email: formData.email, role: formData.role, name: formData.name });
+            
+            const startTime = Date.now();
             await onSignup(formData);
+            const endTime = Date.now();
+            
+            console.log(`✅ SignupModal: Form submission completed in ${endTime - startTime}ms`);
         } catch (err) {
-            console.error('Signup failed:', err);
+            console.error('❌ SignupModal: Signup failed:', err);
         }
     };
 

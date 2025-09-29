@@ -127,7 +127,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setError(null);
 
         try {
+            console.log('🔄 AuthContext: Starting signup process...');
+            console.log('📝 Signup data:', { email: data.email, role: data.role, name: data.name });
+            
+            const startTime = Date.now();
             const response = await apiClient.signup(data);
+            const endTime = Date.now();
+            
+            console.log(`✅ AuthContext: Signup API call completed in ${endTime - startTime}ms`);
+            console.log('📄 Response:', response);
 
             if (response.error) {
                 throw new Error(response.error);

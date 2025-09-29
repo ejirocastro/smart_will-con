@@ -116,13 +116,51 @@ router.post('/signup', async (req, res) => {
         const verificationCode = EmailVerification.generateVerificationCode(email, userData);
 
         // Send verification email with 6-digit code
-        const emailResult = await emailService.sendVerificationEmail(email, verificationCode);
+        console.log('🔄 Starting email send process...');
+        const startTime = Date.now();
+        
+        // Send verification email with 6-digit code
+        let emailResult = { success: true, previewUrl: null };
+        
+        try {
+            console.log('📧 Sending verification email via SMTP...');
+            emailResult = await emailService.sendVerificationEmail(email, verificationCode);
+            const endTime = Date.now();
+            console.log(`📧 Email process completed in ${endTime - startTime}ms`);
 
-        if (!emailResult.success) {
-            return res.status(500).json({ 
-                error: 'Failed to send verification email',
-                message: emailResult.error 
-            });
+            if (!emailResult.success) {
+                console.error('❌ Email sending failed:', emailResult.error);
+                // Still log the code for development but continue with email attempt
+                if (process.env.NODE_ENV === 'development') {
+                    console.log(`🔢 BACKUP: Verification code for ${email}: ${verificationCode}`);
+                }
+                return res.status(500).json({ 
+                    error: 'Failed to send verification email',
+                    message: emailResult.error 
+                });
+            }
+            
+            console.log('✅ Verification email sent successfully to:', email);
+            
+            // Log code to console in development as backup
+            if (process.env.NODE_ENV === 'development') {
+                console.log(`🔢 BACKUP: Verification code for ${email}: ${verificationCode}`);
+            }
+            
+        } catch (emailError) {
+            const endTime = Date.now();
+            console.error(`❌ Email sending threw error after ${endTime - startTime}ms:`, emailError);
+            
+            // Log the code for development so user can still proceed
+            if (process.env.NODE_ENV === 'development') {
+                console.log(`🔢 BACKUP: Verification code for ${email}: ${verificationCode}`);
+                console.log('⚠️ Continuing signup despite email error...');
+            } else {
+                return res.status(500).json({ 
+                    error: 'Failed to send verification email',
+                    message: emailError.message 
+                });
+            }
         }
 
         res.status(200).json({
@@ -138,6 +176,100 @@ router.post('/signup', async (req, res) => {
         console.error('Signup error:', error);
         res.status(500).json({ 
             error: 'Account creation failed',
+            message: error.message 
+        });
+    }
+});
+
+// Debug endpoint for testing signup without email sending
+router.post('/debug-signup', async (req, res) => {
+    try {
+        const { email, password, role, name } = req.body;
+        
+        console.log('🐛 DEBUG: Testing signup flow...');
+        console.log('🐛 Input:', { email, role, name, hasPassword: !!password });
+
+        // Basic validation
+        if (!email || !password || !role) {
+            return res.status(400).json({ 
+                error: 'Email, password, and role are required' 
+            });
+        }
+
+        // Check if user already exists
+        const existingUser = await User.findByEmail(email);
+        if (existingUser) {
+            return res.status(409).json({ 
+                error: 'An account with this email already exists' 
+            });
+        }
+
+        console.log('🐛 DEBUG: Validation passed, returning mock success');
+        
+        res.status(200).json({
+            message: 'DEBUG: Signup flow working - email sending skipped',
+            email: email,
+            requiresVerification: true,
+            debug: true
+        });
+
+    } catch (error) {
+        console.error('🐛 DEBUG Signup error:', error);
+        res.status(500).json({ 
+            error: 'Debug signup failed',
+            message: error.message 
+        });
+    }
+});
+
+// Debug endpoint to clear verification codes (development only)
+router.post('/debug-clear-verification', async (req, res) => {
+    try {
+        if (process.env.NODE_ENV !== 'development') {
+            return res.status(403).json({ 
+                error: 'This endpoint is only available in development mode' 
+            });
+        }
+
+        const { email } = req.body;
+
+        if (email) {
+            // Clear specific email's verification code
+            const verification = EmailVerification.findByEmail(email);
+            if (verification) {
+                EmailVerification.removeCode(verification.code);
+                console.log(`🐛 DEBUG: Cleared verification code for ${email}`);
+                res.json({ 
+                    message: `Verification code cleared for ${email}`,
+                    cleared: true 
+                });
+            } else {
+                res.json({ 
+                    message: `No pending verification found for ${email}`,
+                    cleared: false 
+                });
+            }
+        } else {
+            // Clear all verification codes
+            const allCodes = EmailVerification.getAllCodes();
+            const count = allCodes.length;
+            
+            // Clear all codes
+            allCodes.forEach(verification => {
+                EmailVerification.removeCode(verification.code);
+            });
+            
+            console.log(`🐛 DEBUG: Cleared ${count} verification codes`);
+            res.json({ 
+                message: `Cleared ${count} verification codes`,
+                cleared: count 
+            });
+        }
+
+    } catch (error) {
+        console.error('🐛 DEBUG Clear verification error:', error);
+        res.status(500).json({ 
+            error: 'Failed to clear verification codes',
             message: error.message 
         });
     }

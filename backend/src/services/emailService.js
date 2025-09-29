@@ -77,6 +77,17 @@ class EmailService {
         console.log(`📧 Sending verification email to: ${email}`);
         console.log(`🔢 Verification code: ${code}`);
 
+        // Only skip email sending if explicitly set to skip
+        if (process.env.SKIP_EMAIL_SEND === 'true') {
+            console.log('⚠️ SKIP_EMAIL_SEND=true: Skipping actual email send');
+            console.log(`🔢 Verification code for ${email}: ${code}`);
+            return {
+                success: true,
+                messageId: 'dev-mode-skipped',
+                message: 'Email skipped due to SKIP_EMAIL_SEND flag'
+            };
+        }
+
         try {
             // Render the verification email template
             const htmlContent = await this.renderEmailTemplate('verification', {
@@ -106,7 +117,13 @@ The SmartWill Team
                 `.trim()
             };
 
-            const result = await this.transporter.sendMail(mailOptions);
+            // Add timeout to prevent hanging
+            const result = await Promise.race([
+                this.transporter.sendMail(mailOptions),
+                new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Email sending timeout - took longer than 30 seconds')), 30000)
+                )
+            ]);
             
             console.log('✅ Verification email sent successfully!');
             console.log(`📧 Message ID: ${result.messageId}`);

@@ -27,7 +27,7 @@ class ApiClient {
     }
 
     /**
-     * Make HTTP request with proper headers
+     * Make HTTP request with proper headers and timeout
      */
     private async request<T>(
         endpoint: string, 
@@ -46,22 +46,53 @@ class ApiClient {
         }
 
         try {
+            console.log(`🔄 API: Making ${options.method || 'GET'} request to ${url}`);
+            
+            // Add timeout to prevent hanging requests
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => {
+                console.log('⏰ API: Request timeout - aborting...');
+                controller.abort();
+            }, 60000); // 60 second timeout
+
+            const startTime = Date.now();
             const response = await fetch(url, {
                 ...options,
-                headers
+                headers,
+                signal: controller.signal
             });
+            
+            const endTime = Date.now();
+            console.log(`📡 API: Response received in ${endTime - startTime}ms, status: ${response.status}`);
 
-            const data = await response.json();
+            clearTimeout(timeoutId);
 
             if (!response.ok) {
+                let errorData;
+                try {
+                    errorData = await response.json();
+                } catch (e) {
+                    // If response isn't JSON, create a generic error
+                    errorData = { error: `HTTP ${response.status}: ${response.statusText}` };
+                }
+
                 return {
-                    error: data.error || `HTTP error! status: ${response.status}`
+                    error: errorData.error || `HTTP error! status: ${response.status}`
                 };
             }
 
+            const data = await response.json();
             return { data };
+
         } catch (error) {
             console.error('API request failed:', error);
+            
+            if (error instanceof Error && error.name === 'AbortError') {
+                return {
+                    error: 'Request timeout - The server took too long to respond. Please try again.'
+                };
+            }
+            
             return {
                 error: error instanceof Error ? error.message : 'Network error'
             };
