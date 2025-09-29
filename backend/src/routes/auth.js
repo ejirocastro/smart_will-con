@@ -4,12 +4,16 @@ const EmailVerification = require('../models/EmailVerification');
 const emailService = require('../services/emailService');
 const walletService = require('../services/walletService');
 const { generateToken, authenticateToken } = require('../middleware/auth');
+const { connectDB } = require('../utils/db-helper');
 
 const router = express.Router();
 
 // Login endpoint - only allows login if email is verified
 router.post('/login', async (req, res) => {
     try {
+        // Ensure database connection first
+        await connectDB();
+        
         const { email, password } = req.body;
 
         // Input validation - ensure both email and password are provided
@@ -54,6 +58,16 @@ router.post('/login', async (req, res) => {
 
     } catch (error) {
         console.error('Login error:', error);
+        
+        // Handle database connection errors specifically
+        if (error.statusCode && (error.statusCode === 503 || error.statusCode === 504)) {
+            return res.status(error.statusCode).json({
+                error: 'Service temporarily unavailable',
+                message: 'Database connection failed. Please try again in a moment.',
+                retry: true
+            });
+        }
+        
         res.status(500).json({ 
             error: 'Login failed',
             message: error.message 
@@ -64,6 +78,9 @@ router.post('/login', async (req, res) => {
 // Signup endpoint (now with email verification)
 router.post('/signup', async (req, res) => {
     try {
+        // Ensure database connection first
+        await connectDB();
+        
         const { email, password, role, name } = req.body;
 
         // Validation
@@ -174,6 +191,16 @@ router.post('/signup', async (req, res) => {
 
     } catch (error) {
         console.error('Signup error:', error);
+        
+        // Handle database connection errors specifically
+        if (error.statusCode && (error.statusCode === 503 || error.statusCode === 504)) {
+            return res.status(error.statusCode).json({
+                error: 'Service temporarily unavailable',
+                message: 'Database connection failed. Please try again in a moment.',
+                retry: true
+            });
+        }
+        
         res.status(500).json({ 
             error: 'Account creation failed',
             message: error.message 
@@ -299,6 +326,9 @@ router.post('/logout', authenticateToken, (req, res) => {
 // REQUIREMENT: Email verification endpoint - submit 6-digit code to verify
 router.post('/verify-email', async (req, res) => {
     try {
+        // Ensure database connection first
+        await connectDB();
+        
         const { code, email } = req.body;
 
         // Input validation - ensure both code and email are provided

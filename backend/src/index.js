@@ -45,19 +45,8 @@ app.use(cors({
 // JSON parsing middleware - parse incoming JSON requests
 app.use(express.json());
 
-// Database connection middleware - ensure connection before API requests
-app.use('/api', async (req, res, next) => {
-    try {
-        await databaseConnection.connect();
-        next();
-    } catch (error) {
-        console.error('❌ Database connection failed in middleware:', error.message);
-        res.status(500).json({ 
-            error: 'Database connection failed',
-            message: 'Unable to process request at this time'
-        });
-    }
-});
+// Note: Database connection is handled per-route for Vercel optimization
+// This prevents middleware from blocking serverless function execution
 
 // Authentication routes - all auth endpoints under /api/auth
 app.use('/api/auth', authRoutes);
@@ -78,18 +67,28 @@ app.get('/', (_, res) => {
 
 // Health check endpoint - verify server is running
 app.get('/api/health', async (_, res) => {
-    const dbHealth = await databaseConnection.healthCheck();
-    const dbStatus = databaseConnection.getConnectionStatus();
-    
-    res.json({ 
-        status: 'OK', 
-        timestamp: new Date().toISOString(),
-        service: 'SmartWill Backend',
-        database: {
-            ...dbHealth,
-            connectionStatus: dbStatus
-        }
-    });
+    try {
+        const dbHealth = await databaseConnection.healthCheck();
+        const dbStatus = databaseConnection.getConnectionStatus();
+        
+        res.json({ 
+            status: 'OK', 
+            timestamp: new Date().toISOString(),
+            service: 'SmartWill Backend',
+            database: {
+                ...dbHealth,
+                connectionStatus: dbStatus
+            }
+        });
+    } catch (error) {
+        console.error('Health check error:', error);
+        res.status(503).json({
+            status: 'ERROR',
+            timestamp: new Date().toISOString(),
+            service: 'SmartWill Backend',
+            error: 'Health check failed'
+        });
+    }
 });
 
 // CORS debug endpoint - help troubleshoot CORS issues
