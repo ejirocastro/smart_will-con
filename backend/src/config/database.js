@@ -14,39 +14,56 @@ class DatabaseConnection {
      * Optimized for serverless environments (Vercel)
      */
     async connect() {
-        // For serverless environments, check global connection state
-        if (isConnected && mongoose.connection.readyState === 1) {
+        // Check if we already have a working connection
+        if (mongoose.connection.readyState === 1) {
+            isConnected = true;
             return Promise.resolve();
         }
 
-        // Prevent multiple concurrent connection attempts
+        // If connection is in progress, wait for it
         if (mongoose.connection.readyState === 2) {
-            // Connection is in progress, wait for it
             return new Promise((resolve, reject) => {
-                mongoose.connection.once('connected', resolve);
-                mongoose.connection.once('error', reject);
-                // Timeout after 15 seconds
-                setTimeout(() => reject(new Error('Connection timeout')), 15000);
+                const timeout = setTimeout(() => {
+                    reject(new Error('Connection timeout - took too long to connect'));
+                }, 10000);
+                
+                mongoose.connection.once('connected', () => {
+                    clearTimeout(timeout);
+                    isConnected = true;
+                    resolve();
+                });
+                
+                mongoose.connection.once('error', (error) => {
+                    clearTimeout(timeout);
+                    isConnected = false;
+                    reject(error);
+                });
             });
         }
 
         try {
             // Check if DATABASE_URL is configured
             if (!process.env.DATABASE_URL) {
-                console.warn('⚠️ DATABASE_URL not configured in environment variables');
-                throw new Error('Database connection string not configured');
+                throw new Error('DATABASE_URL not configured');
             }
 
-            console.log('📁 Establishing new MongoDB connection...');
+            console.log('📁 Creating MongoDB connection for serverless...');
             
-            // Get environment-optimized connection settings
-            const connectionOptions = getMongoConnectionOptions();
-            await mongoose.connect(process.env.DATABASE_URL, connectionOptions);
+            // Simplified connection options for Vercel
+            const options = {
+                maxPoolSize: 1,
+                serverSelectionTimeoutMS: 8000,
+                socketTimeoutMS: 8000,
+                connectTimeoutMS: 8000,
+                // Critical: Don't buffer commands in serverless
+                bufferCommands: false
+            };
 
+            await mongoose.connect(process.env.DATABASE_URL, options);
             isConnected = true;
-            console.log('✅ Successfully connected to MongoDB');
+            console.log('✅ MongoDB connected for serverless');
 
-            // Setup event handlers with minimal logging for serverless
+            // Minimal event handlers for serverless
             this.setupEventHandlers();
 
         } catch (error) {

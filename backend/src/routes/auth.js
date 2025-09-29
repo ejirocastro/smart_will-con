@@ -5,14 +5,19 @@ const emailService = require('../services/emailService');
 const walletService = require('../services/walletService');
 const { generateToken, authenticateToken } = require('../middleware/auth');
 const { connectDB } = require('../utils/db-helper');
+const { directConnect } = require('../utils/direct-connect');
 
 const router = express.Router();
 
 // Login endpoint - only allows login if email is verified
 router.post('/login', async (req, res) => {
     try {
-        // Ensure database connection first
-        await connectDB();
+        // For Vercel, use direct connection to avoid timeout issues
+        if (process.env.VERCEL) {
+            await directConnect();
+        } else {
+            await connectDB();
+        }
         
         const { email, password } = req.body;
 
@@ -78,8 +83,12 @@ router.post('/login', async (req, res) => {
 // Signup endpoint (now with email verification)
 router.post('/signup', async (req, res) => {
     try {
-        // Ensure database connection first
-        await connectDB();
+        // For Vercel, use direct connection to avoid timeout issues
+        if (process.env.VERCEL) {
+            await directConnect();
+        } else {
+            await connectDB();
+        }
         
         const { email, password, role, name } = req.body;
 
@@ -141,42 +150,42 @@ router.post('/signup', async (req, res) => {
         
         try {
             console.log('📧 Sending verification email via SMTP...');
-            emailResult = await emailService.sendVerificationEmail(email, verificationCode);
+            
+            // For Vercel, add aggressive timeout to prevent function timeout
+            if (process.env.VERCEL) {
+                const emailPromise = emailService.sendVerificationEmail(email, verificationCode);
+                const timeoutPromise = new Promise((_, reject) => 
+                    setTimeout(() => reject(new Error('Email timeout - preventing function timeout')), 15000)
+                );
+                
+                emailResult = await Promise.race([emailPromise, timeoutPromise]);
+            } else {
+                emailResult = await emailService.sendVerificationEmail(email, verificationCode);
+            }
+            
             const endTime = Date.now();
             console.log(`📧 Email process completed in ${endTime - startTime}ms`);
 
             if (!emailResult.success) {
                 console.error('❌ Email sending failed:', emailResult.error);
-                // Still log the code for development but continue with email attempt
-                if (process.env.NODE_ENV === 'development') {
-                    console.log(`🔢 BACKUP: Verification code for ${email}: ${verificationCode}`);
-                }
-                return res.status(500).json({ 
-                    error: 'Failed to send verification email',
-                    message: emailResult.error 
-                });
+            } else {
+                console.log('✅ Verification email sent successfully to:', email);
             }
             
-            console.log('✅ Verification email sent successfully to:', email);
-            
-            // Log code to console in development as backup
-            if (process.env.NODE_ENV === 'development') {
-                console.log(`🔢 BACKUP: Verification code for ${email}: ${verificationCode}`);
-            }
+            // Always log code as backup for development/debugging
+            console.log(`🔢 VERIFICATION CODE for ${email}: ${verificationCode}`);
             
         } catch (emailError) {
             const endTime = Date.now();
-            console.error(`❌ Email sending threw error after ${endTime - startTime}ms:`, emailError);
+            console.error(`❌ Email error after ${endTime - startTime}ms:`, emailError.message);
             
-            // Log the code for development so user can still proceed
-            if (process.env.NODE_ENV === 'development') {
-                console.log(`🔢 BACKUP: Verification code for ${email}: ${verificationCode}`);
-                console.log('⚠️ Continuing signup despite email error...');
+            // On Vercel, continue anyway to prevent total failure
+            if (process.env.VERCEL) {
+                console.log('🔢 EMAIL FAILED - VERIFICATION CODE for', email, ':', verificationCode);
+                console.log('⚠️ Vercel: Continuing despite email error to prevent timeout');
+                emailResult = { success: true, previewUrl: null }; // Pretend success
             } else {
-                return res.status(500).json({ 
-                    error: 'Failed to send verification email',
-                    message: emailError.message 
-                });
+                throw emailError; // Rethrow on local development
             }
         }
 

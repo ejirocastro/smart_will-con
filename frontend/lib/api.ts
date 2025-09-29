@@ -48,12 +48,15 @@ class ApiClient {
         try {
             console.log(`🔄 API: Making ${options.method || 'GET'} request to ${url}`);
             
-            // Add timeout to prevent hanging requests
+            // Add timeout to prevent hanging requests - longer for auth operations
             const controller = new AbortController();
+            const isAuthOperation = url.includes('/auth/');
+            const timeout = isAuthOperation ? 120000 : 60000; // 2 minutes for auth, 1 minute for others
+            
             const timeoutId = setTimeout(() => {
-                console.log('⏰ API: Request timeout - aborting...');
+                console.log(`⏰ API: Request timeout after ${timeout}ms - aborting...`);
                 controller.abort();
-            }, 60000); // 60 second timeout
+            }, timeout);
 
             const startTime = Date.now();
             const response = await fetch(url, {

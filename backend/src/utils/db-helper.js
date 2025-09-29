@@ -12,7 +12,7 @@ const databaseConnection = require('../config/database');
 async function ensureDBConnection() {
     try {
         const isVercel = process.env.VERCEL;
-        const timeout = isVercel ? 6000 : 10000; // Shorter timeout for Vercel
+        const timeout = isVercel ? 5000 : 10000; // Very short timeout for Vercel
         
         const connectionPromise = databaseConnection.connect();
         const timeoutPromise = new Promise((_, reject) => 
