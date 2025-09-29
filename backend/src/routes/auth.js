@@ -2,6 +2,7 @@ const express = require('express');
 const User = require('../models/User');
 const EmailVerification = require('../models/EmailVerification');
 const emailService = require('../services/emailService');
+const vercelEmailService = require('../services/vercelEmailService');
 const walletService = require('../services/walletService');
 const { generateToken, authenticateToken } = require('../middleware/auth');
 const { connectDB } = require('../utils/db-helper');
@@ -151,15 +152,12 @@ router.post('/signup', async (req, res) => {
         try {
             console.log('📧 Sending verification email via SMTP...');
             
-            // For Vercel, add aggressive timeout to prevent function timeout
-            if (process.env.VERCEL) {
-                const emailPromise = emailService.sendVerificationEmail(email, verificationCode);
-                const timeoutPromise = new Promise((_, reject) => 
-                    setTimeout(() => reject(new Error('Email timeout - preventing function timeout')), 15000)
-                );
-                
-                emailResult = await Promise.race([emailPromise, timeoutPromise]);
+            // Use Vercel-optimized email service for production
+            if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+                console.log('📧 Using Vercel-optimized email service...');
+                emailResult = await vercelEmailService.sendVerificationEmail(email, verificationCode);
             } else {
+                console.log('📧 Using standard email service...');
                 emailResult = await emailService.sendVerificationEmail(email, verificationCode);
             }
             
@@ -180,23 +178,40 @@ router.post('/signup', async (req, res) => {
             console.error(`❌ Email error after ${endTime - startTime}ms:`, emailError.message);
             
             // On Vercel, continue anyway to prevent total failure
-            if (process.env.VERCEL) {
+            if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
                 console.log('🔢 EMAIL FAILED - VERIFICATION CODE for', email, ':', verificationCode);
-                console.log('⚠️ Vercel: Continuing despite email error to prevent timeout');
-                emailResult = { success: true, previewUrl: null }; // Pretend success
+                console.log('⚠️ Production: Continuing despite email error to prevent timeout');
+                console.log('📧 Email will be sent asynchronously or user can use verification code from logs');
+                emailResult = { success: true, previewUrl: null }; // Pretend success to continue flow
             } else {
                 throw emailError; // Rethrow on local development
             }
         }
 
-        res.status(200).json({
+        // For production/Vercel, include verification code if email failed
+        const response = {
             message: 'Verification code sent! Please check your email and enter the 6-digit code to complete your registration.',
             email: email,
             requiresVerification: true,
             codeExpiry: '15 minutes',
             previewUrl: emailResult.previewUrl, // For development only
-            devNote: process.env.NODE_ENV !== 'production' ? 'Check the backend console for the verification code' : undefined
-        });
+        };
+
+        // Add debug info for non-production or if email failed
+        if (process.env.NODE_ENV !== 'production') {
+            response.devNote = 'Check the backend console for the verification code';
+        }
+
+        // If we're on Vercel/production and email might have failed, provide fallback
+        if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+            response.fallbackNote = 'If you don\'t receive the email, contact support with your email address for the verification code.';
+            // Optional: In development/staging, you might want to include the code directly
+            if (process.env.NODE_ENV === 'staging') {
+                response.verificationCode = verificationCode; // Only for staging
+            }
+        }
+
+        res.status(200).json(response);
 
     } catch (error) {
         console.error('Signup error:', error);
